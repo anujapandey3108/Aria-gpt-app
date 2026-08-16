@@ -22,6 +22,13 @@ from app import booking_logic as logic
 from mcp.server.fastmcp import FastMCP
 
 from mcp.types import ToolAnnotations
+from mcp.server.transport_security import TransportSecuritySettings
+
+# By default the MCP SDK's DNS-rebinding protection only trusts requests whose
+# Host header is localhost/127.0.0.1 — correct for local dev, but it will
+# reject every request once deployed publicly (seen as an HTTP 421 from
+# Render/Cloudflare). Explicitly allow the real public hostname(s) here.
+PUBLIC_HOST = os.environ.get("PUBLIC_HOSTNAME", "testdrive-mcp.onrender.com")
 
 mcp = FastMCP(
     "testdrive-booking",
@@ -32,6 +39,11 @@ mcp = FastMCP(
         "a car viewing', 'try out the Aria'. Always call list_vehicles or check_availability "
         "before create_booking if the user hasn't specified an exact model_id and dealer_id. "
         "Valid dealer_id values are exactly 'dealer-melbourne-cbd' and 'dealer-truganina'."
+    ),
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=[PUBLIC_HOST, "localhost", "127.0.0.1", f"localhost:{os.environ.get('PORT', 8001)}"],
+        allowed_origins=[f"https://{PUBLIC_HOST}", "http://localhost", "http://127.0.0.1"],
     ),
 )
 
