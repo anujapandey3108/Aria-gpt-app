@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aria — Book a Test Drive</title>
+<meta name="description" content="Book a test drive for the Aria SUV or Aria Sedan at your nearest dealer. Pick a model, pick a time, drive today.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --asphalt: #12151B;
+    --steel: #1D222B;
+    --steel-light: #262C38;
+    --paper: #EDEAE3;
+    --ember: #FF5A3C;
+    --ember-dim: #C7442D;
+    --fog: #8A93A3;
+    --line: #2E3543;
+    --good: #4ADE80;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--asphalt);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .display {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  a { color: inherit; }
+
+  :focus-visible {
+    outline: 2px solid var(--ember);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 6vw;
+    background: rgba(18,21,27,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ember); }
+  .nav-links { display: flex; gap: 32px; font-size: 14px; color: var(--fog); }
+  .nav-links a:hover { color: var(--paper); }
+  .nav-cta {
+    background: var(--ember); color: var(--asphalt); font-weight: 600; font-size: 14px;
+    padding: 10px 18px; border-radius: 3px; text-decoration: none;
+  }
+
+  .hero {
+    padding: 8vw 6vw 6vw;
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 5vw; align-items: center;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ember);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+  }
+  .eyebrow::before { content: ''; width: 22px; height: 1px; background: var(--ember); }
+  .hero h1 {
+    font-size: clamp(48px, 6.5vw, 92px);
+    margin-bottom: 22px;
+  }
+  .hero h1 .accent { color: var(--ember); }
+  .hero p {
+    color: var(--fog); font-size: 18px; max-width: 46ch; margin-bottom: 32px;
+  }
+  .hero-actions { display: flex; gap: 16px; align-items: center; }
+  .btn-primary {
+    background: var(--ember); color: var(--asphalt); font-weight: 600; font-size: 15px;
+    padding: 15px 26px; border-radius: 3px; text-decoration: none; border: none; cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .btn-primary:hover { background: #ff6f54; transform: translateY(-1px); }
+  .btn-ghost {
+    color: var(--fog); font-size: 14px; text-decoration: none; border-bottom: 1px solid var(--line);
+    padding-bottom: 2px;
+  }
+  .btn-ghost:hover { color: var(--paper); border-color: var(--fog); }
+
+  .cluster {
+    background: var(--steel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cluster::before {
+    content: '';
+    position: absolute; top: -60%; right: -30%;
+    width: 340px; height: 340px; border-radius: 50%;
+    border: 1px solid var(--line);
+  }
+  .cluster::after {
+    content: '';
+    position: absolute; top: -40%; right: -10%;
+    width: 260px; height: 260px; border-radius: 50%;
+    border: 1px dashed var(--line);
+  }
+  .cluster-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--fog);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 18px;
+    display: flex; justify-content: space-between;
+  }
+  .cluster-status { display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); }
+
+  .field { margin-bottom: 16px; position: relative; z-index: 1; }
+  .field label {
+    display: block; font-size: 12px; color: var(--fog); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.06em; font-family: 'JetBrains Mono', monospace;
+  }
+  .field select, .field input {
+    width: 100%; background: var(--asphalt); border: 1px solid var(--line); color: var(--paper);
+    padding: 12px 14px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 14px;
+  }
+  .field select:focus, .field input:focus { border-color: var(--ember); outline: none; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .readout {
+    background: var(--asphalt); border: 1px solid var(--line); border-radius: 4px;
+    padding: 14px; margin: 20px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--good); min-height: 20px; position: relative; z-index: 1;
+  }
+  .readout.err { color: var(--ember); }
+  .readout.idle { color: var(--fog); }
+
+  .ignite {
+    width: 100%; background: var(--ember); color: var(--asphalt); font-weight: 700; font-size: 15px;
+    padding: 16px; border: none; border-radius: 3px; cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.04em; transition: background 0.15s ease;
+    position: relative; z-index: 1;
+  }
+  .ignite:hover:not(:disabled) { background: #ff6f54; }
+  .ignite:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .confirmation {
+    margin-top: 16px; padding: 16px; background: var(--asphalt); border: 1px solid var(--good);
+    border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px; display: none;
+  }
+  .confirmation.show { display: block; }
+  .confirmation .row { display: flex; justify-content: space-between; padding: 4px 0; }
+  .confirmation .row span:first-child { color: var(--fog); }
+
+  .models { padding: 6vw 6vw; background: var(--paper); color: var(--asphalt); }
+  .section-head { max-width: 1400px; margin: 0 auto 48px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .section-head h2 { font-size: clamp(36px, 4vw, 56px); }
+  .section-head p { color: #5b5b52; font-size: 15px; max-width: 32ch; }
+
+  .model-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .model-card {
+    background: #fff; border: 1px solid #d8d4c8; border-radius: 6px; padding: 32px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .model-card .spec-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ember-dim);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .model-card h3 { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase; }
+  .model-card .desc { color: #5b5b52; font-size: 15px; }
+  .model-specs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 12px; border-top: 1px solid #e5e1d4;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  }
+  .model-specs div span { display: block; }
+  .model-specs .k { color: #8a8578; font-size: 11px; text-transform: uppercase; }
+  .model-select-btn {
+    margin-top: 8px; text-align: left; background: var(--asphalt); color: var(--paper); border: none;
+    padding: 12px 18px; border-radius: 3px; font-weight: 600; font-size: 14px; cursor: pointer;
+  }
+  .model-select-btn:hover { background: #262c38; }
+
+  .how { padding: 6vw; max-width: 1400px; margin: 0 auto; }
+  .how h2 { font-size: clamp(32px, 3.6vw, 48px); margin-bottom: 40px; }
+  .how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .how-step { border-top: 1px solid var(--line); padding-top: 18px; }
+  .how-step .num { font-family: 'JetBrains Mono', monospace; color: var(--ember); font-size: 13px; margin-bottom: 10px; }
+  .how-step h4 { font-family: 'Big Shoulders Display', sans-serif; font-size: 22px; text-transform: uppercase; margin-bottom: 8px; }
+  .how-step p { color: var(--fog); font-size: 14px; }
+
+  footer {
+    padding: 40px 6vw; border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--fog); font-size: 13px;
+  }
+
+  @media (max-width: 880px) {
+    .hero { grid-template-columns: 1fr; padding-top: 12vw; }
+    .nav-links { display: none; }
+    .model-grid { grid-template-columns: 1fr; }
+    .how-steps { grid-template-columns: 1fr; }
+    .section-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="logo-dot"></span>ARIA</div>
+  <div class="nav-links">
+    <a href="#models">Models</a>
+    <a href="#book">Book</a>
+    <a href="#how">How it works</a>
+  </div>
+  <a href="#book" class="nav-cta">Book a test drive</a>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">Available now — Melbourne</div>
+    <h1 class="display">Drive it<br>before you<br><span class="accent">decide.</span></h1>
+    <p>Book a test drive for the Aria SUV or Sedan in under a minute. Pick your dealer, pick your time — no salesperson call required to get started.</p>
+    <div class="hero-actions">
+      <a href="#book" class="btn-primary">Book a test drive</a>
+      <a href="#models" class="btn-ghost">See the models</a>
+    </div>
+  </div>
+
+  <div class="cluster" id="book">
+    <div class="cluster-label">
+      <span>BOOKING CONSOLE</span>
+      <span class="cluster-status"><span class="status-dot"></span>READY</span>
+    </div>
+
+    <div class="field">
+      <label for="model">Model</label>
+      <select id="model">
+        <option value="">Loading models…</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="dealer">Dealer</label>
+      <select id="dealer"><option value="">Select a model first</option></select>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="date">Date</label>
+        <input type="date" id="date">
+      </div>
+      <div class="field">
+        <label for="time">Time</label>
+        <input type="time" id="time" value="10:00">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Jordan Lee">
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" placeholder="04XX XXX XXX">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com">
+    </div>
+
+    <div class="readout idle" id="readout">Fill in your details to check availability.</div>
+
+    <button class="ignite" id="ignite" disabled>Confirm booking</button>
+
+    <div class="confirmation" id="confirmation">
+      <div class="row"><span>Booking ID</span><span id="conf-id"></span></div>
+      <div class="row"><span>Vehicle</span><span id="conf-model"></span></div>
+      <div class="row"><span>Dealer</span><span id="conf-dealer"></span></div>
+      <div class="row"><span>When</span><span id="conf-when"></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="models" id="models">
+  <div class="section-head">
+    <h2 class="display">The lineup</h2>
+    <p>Two builds, one platform. Every Aria ships with the same drivetrain philosophy — quiet power, honest handling.</p>
+  </div>
+  <div class="model-grid" id="model-grid"></div>
+</section>
+
+<section class="how" id="how">
+  <h2 class="display">How booking works</h2>
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="num mono">01</div>
+      <h4>Pick your model &amp; dealer</h4>
+      <p>Choose the Aria SUV or Sedan and the dealer location closest to you.</p>
+    </div>
+    <div class="how-step">
+      <div class="num mono">02</div>
+      <h4>Choose a slot</h4>
+      <p>Weekday appointments, 9am–5pm. The console checks live availability before you confirm.</p>
+    </div>
+    <div class="how-step">
+      <div class="num mono">03</div>
+      <h4>Get your confirmation</h4>
+      <p>Your booking ID is issued instantly — no waiting on a callback.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>© 2026 Aria Motors. Proof of concept.</div>
+  <div class="mono">testdrive-api · v1.0</div>
+</footer>
+
+<script>
+  const API_BASE = "https://aria-gpt-app.onrender.com";
+
+  const modelSelect = document.getElementById('model');
+  const dealerSelect = document.getElementById('dealer');
+  const dateInput = document.getElementById('date');
+  const timeInput = document.getElementById('time');
+  const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('phone');
+  const emailInput = document.getElementById('email');
+  const readout = document.getElementById('readout');
+  const igniteBtn = document.getElementById('ignite');
+  const confirmation = document.getElementById('confirmation');
+  const modelGrid = document.getElementById('model-grid');
+
+  let vehicles = [];
+  const dealerLabels = {
+    "dealer-melbourne-cbd": "Melbourne CBD",
+    "dealer-truganina": "Truganina"
+  };
+
+  function nextWeekday() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  }
+  dateInput.value = nextWeekday();
+  dateInput.min = new Date().toISOString().split('T')[0];
+
+  function setReadout(msg, state) {
+    readout.textContent = msg;
+    readout.className = 'readout' + (state ? ' ' + state : '');
+  }
+
+  function populateDealers(modelId) {
+    const v = vehicles.find(v => v.model_id === modelId);
+    dealerSelect.innerHTML = '';
+    if (!v) {
+      dealerSelect.innerHTML = '<option value="">Select a model first</option>';
+      return;
+    }
+    v.available_dealers.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = dealerLabels[d] || d;
+      dealerSelect.appendChild(opt);
+    });
+  }
+
+  function renderModelCards() {
+    modelGrid.innerHTML = '';
+    const specs = {
+      "suv-2026": { range: "480 km", seats: "5", drive: "AWD" },
+      "sedan-2026": { range: "520 km", seats: "5", drive: "RWD" }
+    };
+    vehicles.forEach(v => {
+      const s = specs[v.model_id] || {};
+      const card = document.createElement('div');
+      card.className = 'model-card';
+      card.innerHTML = `
+        <div class="spec-tag">${v.variant} MODEL YEAR</div>
+        <h3>${v.name}</h3>
+        <p class="desc">Available at ${v.available_dealers.map(d => dealerLabels[d] || d).join(' and ')}.</p>
+        <div class="model-specs">
+          <div><span class="k">Range</span><span>${s.range || '—'}</span></div>
+          <div><span class="k">Drive</span><span>${s.drive || '—'}</span></div>
+          <div><span class="k">Seats</span><span>${s.seats || '—'}</span></div>
+          <div><span class="k">Dealers</span><span>${v.available_dealers.length}</span></div>
+        </div>
+        <button class="model-select-btn" data-model="${v.model_id}">Book this model →</button>
+      `;
+      modelGrid.appendChild(card);
+    });
+    modelGrid.querySelectorAll('.model-select-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        modelSelect.value = btn.dataset.model;
+        modelSelect.dispatchEvent(new Event('change'));
+        document.getElementById('book').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
+  }
+
+  async function loadVehicles() {
+    try {
+      const res = await fetch(`${API_BASE}/public/vehicles`);
+      if (!res.ok) throw new Error('Failed to load vehicles');
+      vehicles = await res.json();
+      modelSelect.innerHTML = '<option value="">Choose a model</option>';
+      vehicles.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.model_id;
+        opt.textContent = `${v.name} (${v.variant})`;
+        modelSelect.appendChild(opt);
+      });
+      renderModelCards();
+      setReadout('Fill in your details to check availability.', 'idle');
+    } catch (e) {
+      setReadout('Could not reach the booking system. The server may be waking up — try again in a moment.', 'err');
+    }
+  }
+
+  modelSelect.addEventListener('change', () => populateDealers(modelSelect.value));
+
+  function allFieldsFilled() {
+    return modelSelect.value && dealerSelect.value && dateInput.value && timeInput.value &&
+           nameInput.value.trim() && phoneInput.value.trim() && emailInput.value.trim();
+  }
+
+  async function checkAvailability() {
+    if (!allFieldsFilled()) {
+      setReadout('Fill in your details to check availability.', 'idle');
+      igniteBtn.disabled = true;
+      return;
+    }
+    const datetimeIso = `${dateInput.value}T${timeInput.value}:00`;
+    setReadout('Checking availability…', 'idle');
+    try {
+      const params = new URLSearchParams({
+        model_id: modelSelect.value, dealer_id: dealerSelect.value, datetime_iso: datetimeIso
+      });
+      const res = await fetch(`${API_BASE}/public/availability?${params}`);
+      const data = await res.json();
+      if (data.available) {
+        setReadout('✓ Slot available — ready to confirm.', '');
+        igniteBtn.disabled = false;
+      } else {
+        setReadout('✗ That slot is unavailable. Try a weekday between 9am–5pm.', 'err');
+        igniteBtn.disabled = true;
+      }
+    } catch (e) {
+      setReadout('Could not check availability. Please try again.', 'err');
+      igniteBtn.disabled = true;
+    }
+  }
+
+  [modelSelect, dealerSelect, dateInput, timeInput, nameInput, phoneInput, emailInput].forEach(el => {
+    el.addEventListener('change', checkAvailability);
+    el.addEventListener('input', checkAvailability);
+  });
+
+  igniteBtn.addEventListener('click', async () => {
+    igniteBtn.disabled = true;
+    igniteBtn.textContent = 'Booking…';
+    const datetimeIso = `${dateInput.value}T${timeInput.value}:00`;
+    try {
+      const res = await fetch(`${API_BASE}/public/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          phone: phoneInput.value.trim(),
+          model_id: modelSelect.value,
+          dealer_id: dealerSelect.value,
+          preferred_datetime: datetimeIso
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Booking failed');
+
+      document.getElementById('conf-id').textContent = data.booking_id;
+      document.getElementById('conf-model').textContent = data.model_id;
+      document.getElementById('conf-dealer').textContent = dealerLabels[data.dealer_id] || data.dealer_id;
+      document.getElementById('conf-when').textContent = data.confirmed_datetime.replace('T', ' ');
+      confirmation.classList.add('show');
+      setReadout('✓ Booking confirmed.', '');
+      igniteBtn.textContent = 'Book another';
+      igniteBtn.disabled = false;
+    } catch (e) {
+      setReadout(e.message || 'Booking failed. Please try again.', 'err');
+      igniteBtn.textContent = 'Confirm booking';
+      igniteBtn.disabled = false;
+    }
+  });
+
+  loadVehicles();
+</script>
+
+</body>
+</html>
