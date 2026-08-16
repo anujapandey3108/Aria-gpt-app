@@ -1,0 +1,44 @@
+<div id="td-widget-root" style="font-family: -apple-system, Segoe UI, Roboto, sans-serif; max-width: 420px; border-radius: 16px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+  <div style="background: linear-gradient(135deg,#0f172a,#1e3a8a); color: white; padding: 16px 20px;">
+    <div style="font-size: 13px; opacity: 0.8; letter-spacing: 0.03em; text-transform: uppercase;">Test Drive Booking</div>
+    <div id="td-status" style="font-size: 20px; font-weight: 600; margin-top: 4px;">Confirmed</div>
+  </div>
+  <div style="padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;">
+    <div class="td-row"><span class="td-label">Vehicle</span><span id="td-model" class="td-value"></span></div>
+    <div class="td-row"><span class="td-label">Dealer</span><span id="td-dealer" class="td-value"></span></div>
+    <div class="td-row"><span class="td-label">Date &amp; time</span><span id="td-datetime" class="td-value"></span></div>
+    <div class="td-row"><span class="td-label">Booking ID</span><span id="td-id" class="td-value" style="font-family: ui-monospace, monospace;"></span></div>
+  </div>
+</div>
+<style>
+  .td-row { display: flex; justify-content: space-between; font-size: 14px; }
+  .td-label { color: #6b7280; }
+  .td-value { color: #111827; font-weight: 500; }
+</style>
+<script>
+  (function () {
+    function render(data) {
+      if (!data) return;
+      var statusEl = document.getElementById("td-status");
+      var modelEl = document.getElementById("td-model");
+      var dealerEl = document.getElementById("td-dealer");
+      var dtEl = document.getElementById("td-datetime");
+      var idEl = document.getElementById("td-id");
+
+      if (statusEl) statusEl.textContent = data.status === "confirmed" ? "Confirmed" : data.status;
+      if (modelEl) modelEl.textContent = data.model_id || "";
+      if (dealerEl) dealerEl.textContent = data.dealer_id || "";
+      if (dtEl) dtEl.textContent = data.confirmed_datetime || "";
+      if (idEl) idEl.textContent = data.booking_id || "";
+    }
+
+    // Apps SDK / MCP Apps bridge exposes the tool's structured output here
+    if (window.openai && window.openai.toolOutput) {
+      render(window.openai.toolOutput);
+    }
+    // Also listen for live updates if the host re-hydrates the widget
+    if (window.openai && window.openai.on) {
+      window.openai.on("toolOutputChanged", render);
+    }
+  })();
+</script>

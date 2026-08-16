@@ -1,0 +1,4 @@
+fastapi==0.140.7
+uvicorn[standard]==0.34.0
+pydantic[email]==2.13.4
+mcp==1.28.1
