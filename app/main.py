@@ -23,14 +23,14 @@ from collections import defaultdict
 
 from . import booking_logic as logic
 
-API_KEY = os.environ.get("GPT_ACTION_API_KEY", "changeme-set-a-real-secret")
+API_KEY = os.environ.get("GPT_ACTION_API_KEY", "3ca95f8e49272f8aea23976d8ec402e7")
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 app = FastAPI(
     title="Test Drive Booking API",
     description="Book, check, and manage vehicle test drives.",
     version="1.0.0",
-    servers=[{"url": "https://agentic-customer-test-drive-gpt.onrender.com"}],
+    servers=[{"url": "https://aria-gpt-app.onrender.com"}],
 )
 
 # Public site (any origin, since this serves real end customers directly in
