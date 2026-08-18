@@ -8,6 +8,7 @@ for production use.
 """
 
 from __future__ import annotations
+import re
 import uuid
 from datetime import datetime, timedelta
 from typing import Optional
@@ -23,14 +24,34 @@ class Vehicle(BaseModel):
     name: str
     variant: str
     available_dealers: list[str]
+    body_type: str
+    price_aud: int
+    seats: int
+    range_km: int
+    drivetrain: str
+    safety_features: list[str]
+    family_features: list[str]
+    description: str
 
 
 class BookingRequest(BaseModel):
     customer_name: str = Field(..., description="Full name of the customer")
     email: EmailStr
     phone: str
-    model_id: str = Field(..., description="Vehicle model ID, e.g. 'suv-2026'")
-    dealer_id: str
+    model_id: str = Field(
+        ...,
+        description=(
+            "Vehicle model, accepts natural names like 'Aria Sedan', 'sedan', "
+            "'Aria SUV', or the exact ID 'suv-2026'/'sedan-2026'."
+        ),
+    )
+    dealer_id: str = Field(
+        ...,
+        description=(
+            "Dealer, accepts natural names like 'Melbourne CBD', 'Truganina', "
+            "or the exact ID 'dealer-melbourne-cbd'."
+        ),
+    )
     preferred_datetime: datetime = Field(..., description="ISO 8601 datetime")
     notes: Optional[str] = None
 
@@ -49,13 +70,71 @@ class BookingResult(BaseModel):
 # ---------------------------------------------------------------------------
 
 CATALOG: dict[str, Vehicle] = {
-    "suv-2026": Vehicle(model_id="suv-2026", name="Aria SUV", variant="2026",
-                         available_dealers=["dealer-melbourne-cbd", "dealer-truganina"]),
-    "sedan-2026": Vehicle(model_id="sedan-2026", name="Aria Sedan", variant="2026",
-                           available_dealers=["dealer-melbourne-cbd"]),
+    "suv-2026": Vehicle(
+        model_id="suv-2026", name="Aria SUV", variant="2026",
+        available_dealers=["dealer-melbourne-cbd", "dealer-truganina"],
+        body_type="SUV", price_aud=58000, seats=5, range_km=480, drivetrain="AWD",
+        safety_features=[
+            "8 airbags including rear side-curtain coverage",
+            "ISOFIX and top-tether child seat anchors on all rear seats",
+            "Rear cross-traffic and blind-spot alert",
+            "Autonomous emergency braking with pedestrian and cyclist detection",
+            "360-degree parking camera",
+            "5-star ANCAP safety rating",
+        ],
+        family_features=[
+            "Rear seat sunshades and dual-zone rear climate control",
+            "Low, wide door opening for easier baby seat access",
+            "Hands-free power tailgate for stroller loading",
+            "Rear seat reminder alert to prevent leaving a child in the car",
+        ],
+        description=(
+            "The Aria SUV is built for growing families who want space, "
+            "visibility, and a strong active-safety package without stepping "
+            "outside a mid-size budget."
+        ),
+    ),
+    "sedan-2026": Vehicle(
+        model_id="sedan-2026", name="Aria Sedan", variant="2026",
+        available_dealers=["dealer-melbourne-cbd"],
+        body_type="Sedan", price_aud=46000, seats=5, range_km=520, drivetrain="RWD",
+        safety_features=[
+            "8 airbags including rear side-curtain coverage",
+            "ISOFIX and top-tether child seat anchors on all rear seats",
+            "Autonomous emergency braking with pedestrian and cyclist detection",
+            "Lane-keep assist and driver attention monitoring",
+            "Rear-view camera with parking sensors",
+            "5-star ANCAP safety rating",
+        ],
+        family_features=[
+            "Rear seat reminder alert to prevent leaving a child in the car",
+            "Extra-long rear door aperture for easier newborn capsule access",
+            "Quiet electric drivetrain reduces cabin noise for a sleeping baby",
+        ],
+        description=(
+            "The Aria Sedan is a family-friendly sedan with newborn-ready rear "
+            "seat access, a full suite of active safety features, and an "
+            "on-road price under $50,000, a strong fit for a first family car."
+        ),
+    ),
 }
 
 BOOKINGS: dict[str, BookingResult] = {}
+
+# Natural-language aliases so agents/customers never need to know internal IDs.
+_MODEL_ALIASES: dict[str, str] = {
+    "suv": "suv-2026", "aria suv": "suv-2026", "the aria suv": "suv-2026",
+    "suv-2026": "suv-2026", "aria suv 2026": "suv-2026",
+    "sedan": "sedan-2026", "aria sedan": "sedan-2026", "the aria sedan": "sedan-2026",
+    "sedan-2026": "sedan-2026", "aria sedan 2026": "sedan-2026",
+}
+
+_DEALER_ALIASES: dict[str, str] = {
+    "melbourne cbd": "dealer-melbourne-cbd", "melbourne": "dealer-melbourne-cbd",
+    "cbd": "dealer-melbourne-cbd", "melbourne-cbd": "dealer-melbourne-cbd",
+    "dealer-melbourne-cbd": "dealer-melbourne-cbd",
+    "truganina": "dealer-truganina", "dealer-truganina": "dealer-truganina",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -67,26 +146,38 @@ def list_vehicles() -> list[Vehicle]:
 
 
 def _normalize_model_id(model_id: str) -> str:
-    key = model_id.strip().lower()
-    if key in CATALOG:
-        return key
+    key = re.sub(r"\s+", " ", model_id.strip().lower())
+    if key in _MODEL_ALIASES:
+        return _MODEL_ALIASES[key]
+    # loose contains-match as a final fallback, e.g. "book the sedan please"
+    for alias, resolved in _MODEL_ALIASES.items():
+        if alias in key:
+            return resolved
     raise ValueError(
-        f"Unknown model_id: {model_id!r}. Valid options: {list(CATALOG.keys())}"
+        f"Unknown model: {model_id!r}. Try 'Aria SUV' or 'Aria Sedan'."
     )
 
 
 def _normalize_dealer_id(dealer_id: str, model_id: str) -> str:
-    key = dealer_id.strip().lower()
+    key = re.sub(r"\s+", " ", dealer_id.strip().lower())
     valid = CATALOG[model_id].available_dealers
-    if key in valid:
-        return key
-    # Allow callers to omit the "dealer-" prefix, e.g. "melbourne-cbd" -> "dealer-melbourne-cbd"
-    prefixed = key if key.startswith("dealer-") else f"dealer-{key}"
-    if prefixed in valid:
-        return prefixed
-    raise ValueError(
-        f"Dealer {dealer_id!r} does not stock {model_id}. Valid dealers: {valid}"
-    )
+    resolved = _DEALER_ALIASES.get(key)
+    if resolved is None:
+        for alias, candidate in _DEALER_ALIASES.items():
+            if alias in key:
+                resolved = candidate
+                break
+    if resolved is None:
+        raise ValueError(
+            f"Unknown dealer: {dealer_id!r}. Try 'Melbourne CBD' or 'Truganina'."
+        )
+    if resolved not in valid:
+        dealer_names = ", ".join(d.replace("dealer-", "").replace("-", " ").title() for d in valid)
+        raise ValueError(
+            f"{CATALOG[model_id].name} isn't available at that dealer. "
+            f"Available at: {dealer_names}."
+        )
+    return resolved
 
 
 def check_availability(model_id: str, dealer_id: str, requested: datetime) -> bool:
