@@ -28,7 +28,7 @@ from mcp.server.transport_security import TransportSecuritySettings
 # Host header is localhost/127.0.0.1, correct for local dev, but it will
 # reject every request once deployed publicly (seen as an HTTP 421 from
 # Render/Cloudflare). Explicitly allow the real public hostname(s) here.
-PUBLIC_HOST = os.environ.get("PUBLIC_HOSTNAME", "testdrive-mcp.onrender.com")
+PUBLIC_HOST = os.environ.get("PUBLIC_HOSTNAME", "aria-gpt-mcp.onrender.com")
 
 mcp = FastMCP(
     "testdrive-booking",

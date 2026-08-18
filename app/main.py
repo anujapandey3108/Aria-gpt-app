@@ -30,7 +30,7 @@ app = FastAPI(
     title="Test Drive Booking API",
     description="Book, check, and manage vehicle test drives.",
     version="1.0.0",
-    servers=[{"url": "https://agentic-customer-test-drive-gpt.onrender.com"}],
+    servers=[{"url": "https://aria-gpt-app.onrender.com"}],
 )
 
 # Public site (any origin, since this serves real end customers directly in
