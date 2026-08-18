@@ -41,8 +41,8 @@ class BookingRequest(BaseModel):
     model_id: str = Field(
         ...,
         description=(
-            "Vehicle model, accepts natural names like 'Aria Sedan', 'sedan', "
-            "'Aria SUV', or the exact ID 'suv-2026'/'sedan-2026'."
+            "Vehicle model, accepts natural names like 'Wrenfield Sedan', 'sedan', "
+            "'Wrenfield SUV', or the exact ID 'suv-2026'/'sedan-2026'."
         ),
     )
     dealer_id: str = Field(
@@ -71,7 +71,7 @@ class BookingResult(BaseModel):
 
 CATALOG: dict[str, Vehicle] = {
     "suv-2026": Vehicle(
-        model_id="suv-2026", name="Aria SUV", variant="2026",
+        model_id="suv-2026", name="Wrenfield SUV", variant="2026",
         available_dealers=["dealer-melbourne-cbd", "dealer-truganina"],
         body_type="SUV", price_aud=58000, seats=5, range_km=480, drivetrain="AWD",
         safety_features=[
@@ -89,13 +89,13 @@ CATALOG: dict[str, Vehicle] = {
             "Rear seat reminder alert to prevent leaving a child in the car",
         ],
         description=(
-            "The Aria SUV is built for growing families who want space, "
+            "The Wrenfield SUV is built for growing families who want space, "
             "visibility, and a strong active-safety package without stepping "
             "outside a mid-size budget."
         ),
     ),
     "sedan-2026": Vehicle(
-        model_id="sedan-2026", name="Aria Sedan", variant="2026",
+        model_id="sedan-2026", name="Wrenfield Sedan", variant="2026",
         available_dealers=["dealer-melbourne-cbd"],
         body_type="Sedan", price_aud=46000, seats=5, range_km=520, drivetrain="RWD",
         safety_features=[
@@ -112,7 +112,7 @@ CATALOG: dict[str, Vehicle] = {
             "Quiet electric drivetrain reduces cabin noise for a sleeping baby",
         ],
         description=(
-            "The Aria Sedan is a family-friendly sedan with newborn-ready rear "
+            "The Wrenfield Sedan is a family-friendly sedan with newborn-ready rear "
             "seat access, a full suite of active safety features, and an "
             "on-road price under $50,000, a strong fit for a first family car."
         ),
@@ -122,11 +122,14 @@ CATALOG: dict[str, Vehicle] = {
 BOOKINGS: dict[str, BookingResult] = {}
 
 # Natural-language aliases so agents/customers never need to know internal IDs.
+# "aria" variants kept as legacy synonyms during the brand transition.
 _MODEL_ALIASES: dict[str, str] = {
-    "suv": "suv-2026", "aria suv": "suv-2026", "the aria suv": "suv-2026",
-    "suv-2026": "suv-2026", "aria suv 2026": "suv-2026",
-    "sedan": "sedan-2026", "aria sedan": "sedan-2026", "the aria sedan": "sedan-2026",
-    "sedan-2026": "sedan-2026", "aria sedan 2026": "sedan-2026",
+    "suv": "suv-2026", "wrenfield suv": "suv-2026", "the wrenfield suv": "suv-2026",
+    "suv-2026": "suv-2026", "wrenfield suv 2026": "suv-2026",
+    "aria suv": "suv-2026", "the aria suv": "suv-2026", "aria suv 2026": "suv-2026",
+    "sedan": "sedan-2026", "wrenfield sedan": "sedan-2026", "the wrenfield sedan": "sedan-2026",
+    "sedan-2026": "sedan-2026", "wrenfield sedan 2026": "sedan-2026",
+    "aria sedan": "sedan-2026", "the aria sedan": "sedan-2026", "aria sedan 2026": "sedan-2026",
 }
 
 _DEALER_ALIASES: dict[str, str] = {
@@ -154,7 +157,7 @@ def _normalize_model_id(model_id: str) -> str:
         if alias in key:
             return resolved
     raise ValueError(
-        f"Unknown model: {model_id!r}. Try 'Aria SUV' or 'Aria Sedan'."
+        f"Unknown model: {model_id!r}. Try 'Wrenfield SUV' or 'Wrenfield Sedan'."
     )
 
 

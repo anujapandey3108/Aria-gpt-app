@@ -1,78 +1,94 @@
-# Test Drive Booking — GPT App + MCP Server
+# Wrenfield Motors: Test Drive Booking Platform
 
-One backend, two ways in:
-- `app/` — FastAPI REST API + OpenAPI schema → used by a **Custom GPT's Actions** (what gets listed in the GPT Store)
-- `mcp_server/` — MCP server exposing the same logic as tools → used by Claude, Claude Desktop, or any MCP-compatible host
+A booking platform for the Wrenfield SUV and Wrenfield Sedan, with three ways in that all share the same booking logic:
 
-Both call the same `app/booking_logic.py`, so behavior never drifts between the two.
+- `website/` : the public dealership site customers browse and book from directly
+- `app/` : FastAPI REST API, powering both the website and a Custom GPT's Actions
+- `mcp_server/` : an MCP server exposing the same booking tools to ChatGPT Apps and Claude Connectors
 
-## 1. Deploy the REST API publicly
+All three call the same `app/booking_logic.py`, so a booking made through the website, a Custom GPT, or an AI assistant behaves identically and lands in the same store.
 
-GPT Actions require a **public HTTPS endpoint** with a valid cert (no self-signed, no localhost).
+## Architecture
 
-Quickest paths:
-- **Render.com**: connect this repo, set build command `pip install -r requirements.txt`, start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, set env var `GPT_ACTION_API_KEY`.
-- **Fly.io**: `fly launch` (it will detect the Dockerfile), `fly secrets set GPT_ACTION_API_KEY=...`, `fly deploy`.
-- **Google Cloud Run**: `gcloud run deploy testdrive-api --source . --set-env-vars GPT_ACTION_API_KEY=...`
-- **Azure App Service** (natural fit given your Salesforce/enterprise stack): deploy the container, set the app setting for the API key.
+```
+Customer or agent
+   |
+   |-- Website (website/index.html) -----> REST API /public/* routes (no auth)
+   |-- Custom GPT Actions ---------------> REST API, Bearer-authenticated routes
+   |-- ChatGPT Apps / Claude Connectors -> MCP server (mcp_server/server.py)
+                                              |
+                                              v
+                                    app/booking_logic.py
+                                    (shared booking logic and catalog)
+```
 
-After deploying, update `servers[0].url` in `app/main.py` to your real domain, and redeploy.
+## 1. Deploy the REST API
+
+This needs a public HTTPS endpoint with a valid certificate.
+
+Render.com:
+- Connect this repository
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Environment variable: `GPT_ACTION_API_KEY` (a secret string used to authenticate Custom GPT Actions calls)
+
+After deploying, update `servers[0].url` in `app/main.py` to the real domain and redeploy.
 
 Verify:
+```bash
+curl https://your-domain.example.com/health
+curl https://your-domain.example.com/public/vehicles
 ```
-curl -H "Authorization: Bearer YOUR_KEY" https://your-domain.example.com/vehicles
+
+## 2. Deploy the MCP server
+
+This is a separate service from the REST API, since it runs a different process and protocol.
+
+Render.com, second web service, same repository:
+- Build command: `pip install -r requirements.txt`
+- Start command: `python mcp_server/server.py`
+- Environment variable: `PUBLIC_HOSTNAME` set to the exact hostname of this service (for example `aria-mcp.onrender.com`), required so the built-in DNS rebinding protection allows public traffic
+
+Verify:
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://your-mcp-domain.example.com/mcp
 ```
+A `406` response is correct here. It confirms the server is live and enforcing the MCP protocol handshake.
 
-## 2. Get the OpenAPI schema
+## 3. Deploy the website
 
-Once live:
-```
-curl https://your-domain.example.com/openapi.json
-```
-Save this — you'll paste it into the GPT Builder.
+`website/index.html` is a static file with no build step. Any static host works, including GitHub Pages.
 
-## 3. Build the Custom GPT (this is what gets listed publicly)
+Before deploying, set `API_BASE` near the bottom of `index.html` to the REST API URL from step 1, and update the URLs inside the JSON-LD block and `llms.txt` to match.
 
-1. Go to chatgpt.com → "Explore GPTs" → "Create" (requires ChatGPT Plus/Team/Enterprise).
-2. In the GPT Builder, go to **Configure** tab.
-3. Fill in Name, Description, Instructions (e.g. "You help customers browse vehicle models and book test drives. Always confirm the customer's name, email, phone, model, dealer, and preferred time before calling createBooking.").
-4. Under **Actions**, click **Create new action**.
-5. Paste your OpenAPI schema (or "Import from URL" → `https://your-domain.example.com/openapi.json`).
-6. Set **Authentication** → API Key → Auth Type: `Bearer`, and paste your `GPT_ACTION_API_KEY` value. This is what your `verify_key` dependency checks against.
-7. Test each action in the builder's action test panel (list vehicles, create a booking, etc.) — you did this exact validation above, just repeat via the UI.
-8. Under **Privacy Policy URL**, add a real URL (required for public listing — even a simple hosted page is enough).
-9. Click **Save** → choose **Publish to: Everyone** (or "Anyone with a link" if you want a soft launch first).
-10. Once published publicly, OpenAI can surface it in the **GPT Store** — this can take review time and may require domain verification for the Action's server if you want the "verified" badge.
+Also deploy alongside it: `robots.txt`, `sitemap.xml`, and `llms.txt`, all at the site root.
 
-## 4. (Optional) Run the MCP server for Claude / other MCP hosts
+## 4. Connect a Custom GPT
 
-Local/stdio (Claude Desktop, Claude Code):
+1. chatgpt.com, Explore GPTs, Create, Configure tab
+2. Under Actions, Create new action, Import from URL using `https://your-domain.example.com/openapi.json`
+3. Set Authentication to API Key, Bearer, using the `GPT_ACTION_API_KEY` value
+4. Add a Privacy Policy URL
+5. Save and publish
+
+## 5. Connect ChatGPT Apps or Claude Connectors
+
+Point either platform at the MCP server's `/mcp` endpoint from step 2. Both platforms will discover `list_vehicles`, `check_availability`, `create_booking`, `get_booking`, and `cancel_booking` automatically, along with their descriptions and safety annotations.
+
+`model_id` and `dealer_id` accept natural language (for example "Wrenfield Sedan" and "Melbourne CBD"), so neither platform needs to know the internal catalog identifiers.
+
+## Local development
+
 ```bash
 pip install -r requirements.txt
-python mcp_server/server.py
-```
-Add to Claude Desktop's `claude_desktop_config.json`:
-```json
-{
-  "mcpServers": {
-    "testdrive-booking": {
-      "command": "python",
-      "args": ["/absolute/path/to/mcp_server/server.py"]
-    }
-  }
-}
+uvicorn app.main:app --reload --port 8000       # REST API
+python mcp_server/server.py --stdio             # MCP server, local stdio mode
 ```
 
-Remote/HTTP (for hosted MCP, e.g. exposing to Claude.ai custom connectors):
-```bash
-python mcp_server/server.py --http --port 8001
-```
-Then register `https://your-domain.example.com:8001/sse` as a connector.
+## Production checklist
 
-## 5. Production hardening checklist
-- [ ] Swap the in-memory `BOOKINGS`/`CATALOG` dicts for a real DB or your Salesforce org (given your FSC background, an Apex REST endpoint behind this FastAPI layer is a natural fit)
-- [ ] Rate limiting on `/bookings` POST
-- [ ] Real auth (rotate the bearer key, or move to OAuth if you want per-user identity)
-- [ ] Input validation on phone numbers / booking windows per dealer's actual business hours
-- [ ] Logging + monitoring (Cloud Run/Fly/Render all have basic built-in log viewers)
-- [ ] CORS config if any web frontend also calls this API directly
+- [ ] Replace the in-memory `BOOKINGS` and `CATALOG` dictionaries in `booking_logic.py` with a real database or CRM integration
+- [ ] Move from a shared Bearer key to per-user OAuth if per-customer identity is needed
+- [ ] Tighten CORS on the REST API from `allow_origins=["*"]` to the website's real domain
+- [ ] Add monitoring and alerting on both Render services
+- [ ] Confirm booking windows and rate limits match actual dealer operating hours and capacity

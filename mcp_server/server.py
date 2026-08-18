@@ -34,13 +34,14 @@ mcp = FastMCP(
     "testdrive-booking",
     instructions=(
         "Use these tools when a user wants to browse vehicle models, check test drive "
-        "availability, or book/manage a test drive appointment for the Aria SUV or Aria "
-        "Sedan. Trigger on intents like 'book a test drive', 'test drive an SUV', 'schedule "
-        "a car viewing', 'try out the Aria', or family/safety-oriented searches like 'family "
-        "car with newborn safety features under $50000' (the Aria Sedan fits this). Always "
+        "availability, or book/manage a test drive appointment for the Wrenfield SUV or "
+        "Wrenfield Sedan. Trigger on intents like 'book a test drive', 'test drive an SUV', "
+        "'schedule a car viewing', 'try out the Wrenfield', or family/safety-oriented searches "
+        "like 'family car with newborn safety features under $50000' (the Wrenfield Sedan fits "
+        "this). Always "
         "call list_vehicles or check_availability before create_booking if the user hasn't "
         "specified an exact model and dealer. You can pass model and dealer names exactly as "
-        "the user says them (e.g. 'Aria Sedan', 'Melbourne CBD'), no need to convert to "
+        "the user says them (e.g. 'Wrenfield Sedan', 'Melbourne CBD'), no need to convert to "
         "internal IDs."
     ),
     transport_security=TransportSecuritySettings(
@@ -100,7 +101,7 @@ def check_availability(model_id: str, dealer_id: str, datetime_iso: str) -> dict
     """Check whether a model/dealer/time slot is available for a test drive.
 
     Args:
-        model_id: Vehicle model, natural names work, e.g. 'Aria Sedan' or 'SUV'
+        model_id: Vehicle model, natural names work, e.g. 'Wrenfield Sedan' or 'SUV'
         dealer_id: Dealer, natural names work, e.g. 'Melbourne CBD' or 'Truganina'
         datetime_iso: Requested datetime in ISO 8601, e.g. '2026-08-03T10:00:00'
     """
@@ -142,7 +143,7 @@ def create_booking(
         customer_name: Full name of the customer
         email: Customer email address
         phone: Customer phone number
-        model_id: Vehicle model, natural names work, e.g. 'Aria Sedan' or 'SUV'
+        model_id: Vehicle model, natural names work, e.g. 'Wrenfield Sedan' or 'SUV'
         dealer_id: Dealer, natural names work, e.g. 'Melbourne CBD' or 'Truganina'
         notes: Optional notes
     """
