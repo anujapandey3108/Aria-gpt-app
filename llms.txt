@@ -1,8 +1,15 @@
-# Wrenfield Motors: Test Drive Booking
+# Wrenfield Motors
 
-> Book a test drive for the Wrenfield SUV or Wrenfield Sedan at a Melbourne dealer (Melbourne CBD or Truganina). Appointments are available weekdays, 9am to 5pm.
+> Wrenfield Motors is a Melbourne dealership offering two electric family vehicles, the Wrenfield SUV and Wrenfield Sedan, both 5-star ANCAP rated and built around newborn and family safety. Test drives can be booked directly through the site or through an AI assistant.
 
-Wrenfield Motors is a Melbourne dealership offering the Wrenfield SUV and Wrenfield Sedan. This site lets visitors browse vehicle models and book a real, confirmed test drive appointment directly, no phone call or salesperson required.
+## About
+
+Wrenfield Motors is a Melbourne dealership built around one focus: family safety as a design principle, not an option pack. The company works with a single platform in two body styles, an SUV and a Sedan, so safety engineering such as ISOFIX placement, rear door geometry, and active-safety tech gets full attention rather than being spread across a large model range.
+
+Company values:
+- Safety as standard: 5-star ANCAP rating, ISOFIX and top-tether anchors on every rear seat, and active-safety tech included by default on both models
+- Newborn ready: door geometry, rear legroom, and capsule access are tested with real infant car seats
+- No pressure sales: customers can browse, compare, and book a test drive on their own time, online or in person
 
 ## Vehicles
 
@@ -11,9 +18,11 @@ Wrenfield Motors is a Melbourne dealership offering the Wrenfield SUV and Wrenfi
 
 Both models are newborn and family safety oriented, with full ISOFIX coverage, high ANCAP ratings, and rear seat reminder alerts.
 
-## Booking a test drive (for agents)
+## Booking a test drive
 
-The booking system is available as a machine-callable API, not just a browser form.
+Test drive booking is one feature of the site, not the whole site. Visitors can book directly through the booking console on the homepage, or ask an AI assistant to book on their behalf.
+
+For agents: the booking system is available as a machine-callable API, not just a browser form.
 
 - **REST API and OpenAPI schema**: https://aria-gpt-app.onrender.com/openapi.json
 - **Public booking endpoints (no authentication required)**:
@@ -24,7 +33,15 @@ The booking system is available as a machine-callable API, not just a browser fo
 
 `model_id` and `dealer_id` accept natural language, for example "Wrenfield Sedan" or "Melbourne CBD". Exact internal identifiers are not required. Booking slots are weekdays only, 9am to 5pm, at least 30 minutes apart per dealer.
 
-## Pages
+## Page sections
 
-- [Homepage and booking console](https://anujapandey3108.github.io/Aria-gpt-app/): browse models and book directly
+The homepage (https://anujapandey3108.github.io/Aria-gpt-app/) is organized as:
+- Hero: company introduction and key stats
+- About (#about): company mission and values
+- Models (#models): the Wrenfield SUV and Wrenfield Sedan, with full specs and pricing
+- Test Drive (#book): booking console, plus how to book through an AI assistant
+- How it works (#how): the booking process explained
+
+## Other pages
+
 - [Privacy policy](https://anujapandey3108.github.io/privacy-policy/)
