@@ -102,6 +102,21 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/robots.txt", include_in_schema=False)
+def robots_txt():
+    from fastapi.responses import PlainTextResponse
+    content = (
+        "User-agent: *\n"
+        "Allow: /public/\n"
+        "Allow: /openapi.json\n"
+        "Allow: /health\n"
+        "Disallow: /vehicles\n"
+        "Disallow: /availability\n"
+        "Disallow: /bookings\n"
+    )
+    return PlainTextResponse(content)
+
+
 # ---------------------------------------------------------------------------
 # Public website endpoints, no API key required.
 # These serve real end customers directly (public site, no ChatGPT/Claude
