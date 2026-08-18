@@ -3,11 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aria — Book a Test Drive</title>
+<title>Aria: Book a Test Drive</title>
 <meta name="description" content="Book a test drive for the Aria SUV or Aria Sedan at your nearest dealer. Pick a model, pick a time, drive today.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/json" href="/openapi.json" title="Aria Test Drive Booking API">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "AutomotiveBusiness",
+      "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#organization",
+      "name": "Aria Motors",
+      "url": "https://anujapandey3108.github.io/Aria-gpt-app/",
+      "areaServed": { "@type": "City", "name": "Melbourne" },
+      "makesOffer": [
+        { "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#suv-2026" },
+        { "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#sedan-2026" }
+      ]
+    },
+    {
+      "@type": "Car",
+      "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#suv-2026",
+      "name": "Aria SUV",
+      "description": "Family SUV with 5-star ANCAP safety rating, ISOFIX child seat anchors on all rear seats, and a full active-safety package. Ideal for growing families needing space and newborn-ready safety.",
+      "vehicleModelDate": "2026",
+      "bodyType": "SUV",
+      "vehicleSeatingCapacity": 5,
+      "driveWheelConfiguration": "AWD",
+      "vehicleEngine": { "@type": "EngineSpecification", "name": "Electric" },
+      "additionalProperty": [
+        { "@type": "PropertyValue", "name": "ANCAP safety rating", "value": "5 stars" },
+        { "@type": "PropertyValue", "name": "Child seat anchors", "value": "ISOFIX and top-tether, all rear seats" },
+        { "@type": "PropertyValue", "name": "Airbags", "value": "8, including rear side-curtain" },
+        { "@type": "PropertyValue", "name": "Family suitability", "value": "Newborn and family friendly" }
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "58000",
+        "priceCurrency": "AUD",
+        "availability": "https://schema.org/InStock",
+        "seller": { "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#organization" },
+        "potentialAction": {
+          "@type": "ReserveAction",
+          "name": "Book a test drive",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://agentic-customer-test-drive-gpt.onrender.com/public/bookings",
+            "actionPlatform": ["https://schema.org/DesktopWebPlatform", "https://schema.org/IOSPlatform", "https://schema.org/AndroidPlatform"]
+          },
+          "result": { "@type": "ReservationPackage", "name": "Test drive booking confirmation" }
+        }
+      }
+    },
+    {
+      "@type": "Car",
+      "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#sedan-2026",
+      "name": "Aria Sedan",
+      "description": "Family sedan under $50,000 with newborn-ready safety: ISOFIX child seat anchors on all rear seats, extra-long rear door for capsule access, 5-star ANCAP rating, and a full driver-assist suite.",
+      "vehicleModelDate": "2026",
+      "bodyType": "Sedan",
+      "vehicleSeatingCapacity": 5,
+      "driveWheelConfiguration": "RWD",
+      "vehicleEngine": { "@type": "EngineSpecification", "name": "Electric" },
+      "additionalProperty": [
+        { "@type": "PropertyValue", "name": "ANCAP safety rating", "value": "5 stars" },
+        { "@type": "PropertyValue", "name": "Child seat anchors", "value": "ISOFIX and top-tether, all rear seats" },
+        { "@type": "PropertyValue", "name": "Airbags", "value": "8, including rear side-curtain" },
+        { "@type": "PropertyValue", "name": "Family suitability", "value": "Newborn and family friendly, under $50,000" }
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "46000",
+        "priceCurrency": "AUD",
+        "availability": "https://schema.org/InStock",
+        "seller": { "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#organization" },
+        "potentialAction": {
+          "@type": "ReserveAction",
+          "name": "Book a test drive",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://agentic-customer-test-drive-gpt.onrender.com/public/bookings",
+            "actionPlatform": ["https://schema.org/DesktopWebPlatform", "https://schema.org/IOSPlatform", "https://schema.org/AndroidPlatform"]
+          },
+          "result": { "@type": "ReservationPackage", "name": "Test drive booking confirmation" }
+        }
+      }
+    },
+    {
+      "@type": "AutoDealer",
+      "name": "Aria Motors, Melbourne CBD",
+      "address": { "@type": "PostalAddress", "addressLocality": "Melbourne", "addressRegion": "VIC", "addressCountry": "AU" },
+      "openingHours": "Mo-Fr 09:00-17:00"
+    },
+    {
+      "@type": "AutoDealer",
+      "name": "Aria Motors, Truganina",
+      "address": { "@type": "PostalAddress", "addressLocality": "Truganina", "addressRegion": "VIC", "addressCountry": "AU" },
+      "openingHours": "Mo-Fr 09:00-17:00"
+    }
+  ]
+}
+</script>
 <style>
   :root {
     --asphalt: #12151B;
@@ -183,15 +282,24 @@
 
   .model-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .model-card {
-    background: #fff; border: 1px solid #d8d4c8; border-radius: 6px; padding: 32px;
-    display: flex; flex-direction: column; gap: 16px;
+    background: #fff; border: 1px solid #d8d4c8; border-radius: 6px; overflow: hidden;
+    display: flex; flex-direction: column;
   }
+  .model-art { line-height: 0; border-bottom: 1px solid #d8d4c8; }
+  .model-art svg { width: 100%; height: auto; display: block; }
+  .model-card-body { padding: 28px; display: flex; flex-direction: column; gap: 14px; }
   .model-card .spec-tag {
     font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ember-dim);
     text-transform: uppercase; letter-spacing: 0.08em;
   }
   .model-card h3 { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; margin-top: -8px; }
+  .price { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--asphalt); }
+  .price-note { font-size: 12px; color: #8a8578; }
   .model-card .desc { color: #5b5b52; font-size: 15px; }
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #3a3a34; }
+  .feature-list li { padding-left: 18px; position: relative; }
+  .feature-list li::before { content: '✓'; position: absolute; left: 0; color: #2f9e5c; font-weight: 700; }
   .model-specs {
     display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 12px; border-top: 1px solid #e5e1d4;
     font-family: 'JetBrains Mono', monospace; font-size: 13px;
@@ -241,9 +349,9 @@
 
 <section class="hero">
   <div>
-    <div class="eyebrow">Available now — Melbourne</div>
+    <div class="eyebrow">Available now in Melbourne, 2 dealer locations</div>
     <h1 class="display">Drive it<br>before you<br><span class="accent">decide.</span></h1>
-    <p>Book a test drive for the Aria SUV or Sedan in under a minute. Pick your dealer, pick your time — no salesperson call required to get started.</p>
+    <p>Book a test drive for the Aria SUV or Sedan in under a minute. Choose Melbourne CBD or Truganina, pick your time. No salesperson call required to get started.</p>
     <div class="hero-actions">
       <a href="#book" class="btn-primary">Book a test drive</a>
       <a href="#models" class="btn-ghost">See the models</a>
@@ -258,41 +366,47 @@
 
     <div class="field">
       <label for="model">Model</label>
-      <select id="model">
-        <option value="">Loading models…</option>
+      <select id="model" name="model" aria-label="Vehicle model">
+        <option value="">Choose a model</option>
+        <option value="suv-2026">Aria SUV (2026)</option>
+        <option value="sedan-2026">Aria Sedan (2026)</option>
       </select>
     </div>
 
     <div class="field">
       <label for="dealer">Dealer</label>
-      <select id="dealer"><option value="">Select a model first</option></select>
+      <select id="dealer" name="dealer" aria-label="Dealer location">
+        <option value="">Choose a model first</option>
+        <option value="dealer-melbourne-cbd">Melbourne CBD</option>
+        <option value="dealer-truganina">Truganina</option>
+      </select>
     </div>
 
     <div class="field-row">
       <div class="field">
         <label for="date">Date</label>
-        <input type="date" id="date">
+        <input type="date" id="date" name="date" aria-label="Preferred date">
       </div>
       <div class="field">
         <label for="time">Time</label>
-        <input type="time" id="time" value="10:00">
+        <input type="time" id="time" name="time" value="10:00" aria-label="Preferred time">
       </div>
     </div>
 
     <div class="field-row">
       <div class="field">
         <label for="name">Name</label>
-        <input type="text" id="name" placeholder="Jordan Lee">
+        <input type="text" id="name" name="customer_name" autocomplete="name" placeholder="Jordan Lee" aria-label="Full name">
       </div>
       <div class="field">
         <label for="phone">Phone</label>
-        <input type="tel" id="phone" placeholder="04XX XXX XXX">
+        <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="04XX XXX XXX" aria-label="Phone number">
       </div>
     </div>
 
     <div class="field">
       <label for="email">Email</label>
-      <input type="email" id="email" placeholder="you@example.com">
+      <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address">
     </div>
 
     <div class="readout idle" id="readout">Fill in your details to check availability.</div>
@@ -311,9 +425,83 @@
 <section class="models" id="models">
   <div class="section-head">
     <h2 class="display">The lineup</h2>
-    <p>Two builds, one platform. Every Aria ships with the same drivetrain philosophy — quiet power, honest handling.</p>
+    <p>Two builds, one platform. Every Aria ships with the same safety-first philosophy, built for real families, not just spec sheets.</p>
   </div>
-  <div class="model-grid" id="model-grid"></div>
+  <div class="model-grid" id="model-grid">
+
+    <article class="model-card">
+      <div class="model-art" aria-hidden="true">
+        <svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aria SUV illustration">
+          <rect x="0" y="0" width="400" height="180" fill="#EDEAE3"/>
+          <ellipse cx="200" cy="150" rx="150" ry="10" fill="#d8d4c8"/>
+          <path d="M60 130 L70 90 Q80 70 110 65 L150 55 Q200 48 250 55 L290 65 Q320 72 330 90 L340 130 Z" fill="#12151B"/>
+          <rect x="75" y="95" width="60" height="34" rx="6" fill="#EDEAE3" opacity="0.9"/>
+          <rect x="145" y="80" width="110" height="42" rx="8" fill="#EDEAE3" opacity="0.9"/>
+          <rect x="265" y="95" width="55" height="34" rx="6" fill="#EDEAE3" opacity="0.9"/>
+          <circle cx="115" cy="132" r="22" fill="#1D222B"/>
+          <circle cx="115" cy="132" r="10" fill="#8A93A3"/>
+          <circle cx="290" cy="132" r="22" fill="#1D222B"/>
+          <circle cx="290" cy="132" r="10" fill="#8A93A3"/>
+          <rect x="60" y="128" width="280" height="6" fill="#FF5A3C"/>
+        </svg>
+      </div>
+      <div class="model-card-body">
+        <div class="spec-tag">2026 MODEL YEAR, SUV</div>
+        <h3>Aria SUV</h3>
+        <div class="price-row"><span class="price">$58,000</span><span class="price-note">drive away, before options</span></div>
+        <p class="desc">A family SUV built around visibility, space, and a full active-safety package. 5-star ANCAP rated with rear-seat ISOFIX anchors on every position, so it's ready for a newborn capsule from day one.</p>
+        <div class="model-specs">
+          <div><span class="k">Range</span><span>480 km</span></div>
+          <div><span class="k">Drive</span><span>AWD</span></div>
+          <div><span class="k">Seats</span><span>5</span></div>
+          <div><span class="k">Dealers</span><span>2</span></div>
+        </div>
+        <ul class="feature-list">
+          <li>8 airbags + rear side-curtain coverage</li>
+          <li>ISOFIX &amp; top-tether anchors, all rear seats</li>
+          <li>360° camera + autonomous emergency braking</li>
+          <li>Rear seat reminder alert, never leave a child behind</li>
+        </ul>
+        <button class="model-select-btn" data-model="suv-2026">Book this model →</button>
+      </div>
+    </article>
+
+    <article class="model-card">
+      <div class="model-art" aria-hidden="true">
+        <svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aria Sedan illustration">
+          <rect x="0" y="0" width="400" height="180" fill="#EDEAE3"/>
+          <ellipse cx="200" cy="150" rx="150" ry="10" fill="#d8d4c8"/>
+          <path d="M55 132 L68 100 Q78 82 105 78 L140 62 Q200 50 260 62 L295 78 Q322 82 332 100 L345 132 Z" fill="#1D222B"/>
+          <path d="M120 78 Q160 58 200 58 Q240 58 280 78 L272 100 L128 100 Z" fill="#EDEAE3" opacity="0.9"/>
+          <circle cx="120" cy="134" r="21" fill="#12151B"/>
+          <circle cx="120" cy="134" r="9" fill="#8A93A3"/>
+          <circle cx="285" cy="134" r="21" fill="#12151B"/>
+          <circle cx="285" cy="134" r="9" fill="#8A93A3"/>
+          <rect x="55" y="130" width="290" height="6" fill="#FF5A3C"/>
+        </svg>
+      </div>
+      <div class="model-card-body">
+        <div class="spec-tag">2026 MODEL YEAR, SEDAN</div>
+        <h3>Aria Sedan</h3>
+        <div class="price-row"><span class="price">$46,000</span><span class="price-note">drive away, under $50,000</span></div>
+        <p class="desc">A family car with newborn-ready safety: extra-long rear door openings for easier capsule access, ISOFIX anchors on every rear seat, and a full driver-assist suite, all under $50,000 drive away.</p>
+        <div class="model-specs">
+          <div><span class="k">Range</span><span>520 km</span></div>
+          <div><span class="k">Drive</span><span>RWD</span></div>
+          <div><span class="k">Seats</span><span>5</span></div>
+          <div><span class="k">Dealers</span><span>1</span></div>
+        </div>
+        <ul class="feature-list">
+          <li>ISOFIX &amp; top-tether anchors, all rear seats</li>
+          <li>Extra-long rear door for newborn capsule access</li>
+          <li>Lane-keep assist + driver attention monitoring</li>
+          <li>Quiet electric drivetrain, kinder to a sleeping baby</li>
+        </ul>
+        <button class="model-select-btn" data-model="sedan-2026">Book this model →</button>
+      </div>
+    </article>
+
+  </div>
 </section>
 
 <section class="how" id="how">
@@ -327,23 +515,23 @@
     <div class="how-step">
       <div class="num mono">02</div>
       <h4>Choose a slot</h4>
-      <p>Weekday appointments, 9am–5pm. The console checks live availability before you confirm.</p>
+      <p>Weekday appointments, 9am to 5pm. The console checks live availability before you confirm.</p>
     </div>
     <div class="how-step">
       <div class="num mono">03</div>
       <h4>Get your confirmation</h4>
-      <p>Your booking ID is issued instantly — no waiting on a callback.</p>
+      <p>Your booking ID is issued instantly, no waiting on a callback.</p>
     </div>
   </div>
 </section>
 
 <footer>
-  <div>© 2026 Aria Motors. Proof of concept.</div>
-  <div class="mono">testdrive-api · v1.0</div>
+  <div>© 2026 Aria Motors. All rights reserved.</div>
+  <div class="mono">Melbourne, Australia</div>
 </footer>
 
 <script>
-  const API_BASE = "https://aria-gpt-app.onrender.com";
+  const API_BASE = "https://agentic-customer-test-drive-gpt.onrender.com";
 
   const modelSelect = document.getElementById('model');
   const dealerSelect = document.getElementById('dealer');
@@ -407,9 +595,9 @@
         <h3>${v.name}</h3>
         <p class="desc">Available at ${v.available_dealers.map(d => dealerLabels[d] || d).join(' and ')}.</p>
         <div class="model-specs">
-          <div><span class="k">Range</span><span>${s.range || '—'}</span></div>
-          <div><span class="k">Drive</span><span>${s.drive || '—'}</span></div>
-          <div><span class="k">Seats</span><span>${s.seats || '—'}</span></div>
+          <div><span class="k">Range</span><span>${s.range || 'N/A'}</span></div>
+          <div><span class="k">Drive</span><span>${s.drive || 'N/A'}</span></div>
+          <div><span class="k">Seats</span><span>${s.seats || 'N/A'}</span></div>
           <div><span class="k">Dealers</span><span>${v.available_dealers.length}</span></div>
         </div>
         <button class="model-select-btn" data-model="${v.model_id}">Book this model →</button>
@@ -440,7 +628,7 @@
       renderModelCards();
       setReadout('Fill in your details to check availability.', 'idle');
     } catch (e) {
-      setReadout('Could not reach the booking system. The server may be waking up — try again in a moment.', 'err');
+      setReadout('Could not reach the booking system. The server may be waking up, try again in a moment.', 'err');
     }
   }
 
@@ -466,10 +654,10 @@
       const res = await fetch(`${API_BASE}/public/availability?${params}`);
       const data = await res.json();
       if (data.available) {
-        setReadout('✓ Slot available — ready to confirm.', '');
+        setReadout('✓ Slot available, ready to confirm.', '');
         igniteBtn.disabled = false;
       } else {
-        setReadout('✗ That slot is unavailable. Try a weekday between 9am–5pm.', 'err');
+        setReadout('✗ That slot is unavailable. Try a weekday between 9am and 5pm.', 'err');
         igniteBtn.disabled = true;
       }
     } catch (e) {
