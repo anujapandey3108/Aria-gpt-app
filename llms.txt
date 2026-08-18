@@ -1,13 +1,13 @@
-# Aria Motors: Test Drive Booking
+# Wrenfield Motors: Test Drive Booking
 
-> Book a test drive for the Aria SUV or Aria Sedan at a Melbourne dealer (Melbourne CBD or Truganina). Appointments are available weekdays, 9am to 5pm.
+> Book a test drive for the Wrenfield SUV or Wrenfield Sedan at a Melbourne dealer (Melbourne CBD or Truganina). Appointments are available weekdays, 9am to 5pm.
 
-Aria Motors is a Melbourne dealership offering the Aria SUV and Aria Sedan. This site lets visitors browse vehicle models and book a real, confirmed test drive appointment directly, no phone call or salesperson required.
+Wrenfield Motors is a Melbourne dealership offering the Wrenfield SUV and Wrenfield Sedan. This site lets visitors browse vehicle models and book a real, confirmed test drive appointment directly, no phone call or salesperson required.
 
 ## Vehicles
 
-- **Aria SUV (2026)**: $58,000 drive away. AWD, 5 seats, 480 km range, 5-star ANCAP safety rating. ISOFIX and top-tether child seat anchors on all rear seats, 8 airbags, 360-degree camera, autonomous emergency braking, rear seat reminder alert. Suited to growing families needing space and newborn-ready safety. Available at Melbourne CBD and Truganina dealers.
-- **Aria Sedan (2026)**: $46,000 drive away, under $50,000. RWD, 5 seats, 520 km range, 5-star ANCAP safety rating. ISOFIX and top-tether child seat anchors on all rear seats, 8 airbags, extra-long rear door for newborn capsule access, lane-keep assist, driver attention monitoring, quiet electric drivetrain. A strong fit for a first family car with a newborn on a sub-$50,000 budget. Available at Melbourne CBD dealer only.
+- **Wrenfield SUV (2026)**: $58,000 drive away. AWD, 5 seats, 480 km range, 5-star ANCAP safety rating. ISOFIX and top-tether child seat anchors on all rear seats, 8 airbags, 360-degree camera, autonomous emergency braking, rear seat reminder alert. Suited to growing families needing space and newborn-ready safety. Available at Melbourne CBD and Truganina dealers.
+- **Wrenfield Sedan (2026)**: $46,000 drive away, under $50,000. RWD, 5 seats, 520 km range, 5-star ANCAP safety rating. ISOFIX and top-tether child seat anchors on all rear seats, 8 airbags, extra-long rear door for newborn capsule access, lane-keep assist, driver attention monitoring, quiet electric drivetrain. A strong fit for a first family car with a newborn on a sub-$50,000 budget. Available at Melbourne CBD dealer only.
 
 Both models are newborn and family safety oriented, with full ISOFIX coverage, high ANCAP ratings, and rear seat reminder alerts.
 
@@ -22,7 +22,7 @@ The booking system is available as a machine-callable API, not just a browser fo
   - `POST /public/bookings`: confirm a booking (requires customer_name, email, phone, model_id, dealer_id, preferred_datetime)
 - **MCP server** (for ChatGPT Apps and Claude Connectors): https://agentic-customer-test-drive-mcp.onrender.com/mcp. Exposes `list_vehicles`, `check_availability`, `create_booking`, `get_booking`, `cancel_booking` as tools.
 
-`model_id` and `dealer_id` accept natural language, for example "Aria Sedan" or "Melbourne CBD". Exact internal identifiers are not required. Booking slots are weekdays only, 9am to 5pm, at least 30 minutes apart per dealer.
+`model_id` and `dealer_id` accept natural language, for example "Wrenfield Sedan" or "Melbourne CBD". Exact internal identifiers are not required. Booking slots are weekdays only, 9am to 5pm, at least 30 minutes apart per dealer.
 
 ## Pages
 
