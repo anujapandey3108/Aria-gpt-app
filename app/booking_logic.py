@@ -148,6 +148,50 @@ def list_vehicles() -> list[Vehicle]:
     return list(CATALOG.values())
 
 
+def search_vehicles(
+    body_style: Optional[str] = None,
+    max_price: Optional[int] = None,
+    min_seats: Optional[int] = None,
+) -> list[Vehicle]:
+    """Filter the catalog by body style, max price, and/or minimum seats.
+    All filters are optional; omitted filters are not applied. body_style
+    matches case-insensitively against Vehicle.body_type (e.g. 'sedan', 'SUV')."""
+    results = list(CATALOG.values())
+    if body_style:
+        target = body_style.strip().lower()
+        results = [v for v in results if v.body_type.lower() == target]
+    if max_price is not None:
+        results = [v for v in results if v.price_aud <= max_price]
+    if min_seats is not None:
+        results = [v for v in results if v.seats >= min_seats]
+    return results
+
+
+def get_vehicle(model_id: str) -> Vehicle:
+    """Look up a single vehicle by natural name or internal ID."""
+    resolved = _normalize_model_id(model_id)
+    return CATALOG[resolved]
+
+
+def _dealer_display_name(dealer_id: str) -> str:
+    name = dealer_id.replace("dealer-", "").replace("-", " ").title()
+    return name.replace("Cbd", "CBD")
+
+
+def list_dealers(model_id: Optional[str] = None) -> list[dict]:
+    """List dealers, optionally filtered to ones stocking a given model.
+    Returns dealer_id plus a human-readable name."""
+    if model_id:
+        resolved = _normalize_model_id(model_id)
+        dealer_ids = CATALOG[resolved].available_dealers
+    else:
+        dealer_ids = sorted({d for v in CATALOG.values() for d in v.available_dealers})
+    return [
+        {"dealer_id": d, "name": _dealer_display_name(d)}
+        for d in dealer_ids
+    ]
+
+
 def _normalize_model_id(model_id: str) -> str:
     key = re.sub(r"\s+", " ", model_id.strip().lower())
     if key in _MODEL_ALIASES:

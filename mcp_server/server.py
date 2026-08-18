@@ -33,16 +33,18 @@ PUBLIC_HOST = os.environ.get("PUBLIC_HOSTNAME", "aria-gpt-mcp.onrender.com")
 mcp = FastMCP(
     "testdrive-booking",
     instructions=(
-        "Use these tools when a user wants to browse vehicle models, check test drive "
-        "availability, or book/manage a test drive appointment for the Wrenfield SUV or "
-        "Wrenfield Sedan. Trigger on intents like 'book a test drive', 'test drive an SUV', "
-        "'schedule a car viewing', 'try out the Wrenfield', or family/safety-oriented searches "
-        "like 'family car with newborn safety features under $50000' (the Wrenfield Sedan fits "
-        "this). Always "
-        "call list_vehicles or check_availability before create_booking if the user hasn't "
-        "specified an exact model and dealer. You can pass model and dealer names exactly as "
-        "the user says them (e.g. 'Wrenfield Sedan', 'Melbourne CBD'), no need to convert to "
-        "internal IDs."
+        "Wrenfield Motors is a Melbourne dealership selling the Wrenfield SUV and "
+        "Wrenfield Sedan, both electric family vehicles with 5-star ANCAP safety "
+        "ratings. Use search_vehicles for browsing or discovery intents, including "
+        "phrasing that doesn't name the brand, such as 'family sedan under $50000', "
+        "'electric SUV for a family of five', or 'newborn friendly car under 50k', as "
+        "well as direct queries like 'show me Wrenfield cars'. Use get_vehicle once a "
+        "specific model is identified. Use list_dealers to find where to see a model "
+        "in person. Use check_test_drive_availability once a model, dealer, and "
+        "candidate time are known. Use book_test_drive only after availability has "
+        "been confirmed and the customer has agreed to the details. Model and dealer "
+        "names can be passed exactly as the user says them (e.g. 'Wrenfield Sedan', "
+        "'Melbourne CBD'), no need to convert to internal IDs."
     ),
     transport_security=TransportSecuritySettings(
         enable_dns_rebinding_protection=True,
@@ -75,17 +77,76 @@ def booking_confirmation_widget() -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="List vehicle models",
+        title="Search Wrenfield vehicles",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
         openWorldHint=False,
     )
 )
-def list_vehicles() -> list[dict]:
-    """List all vehicle models available for test drives. Use this when the user wants
-    to browse or compare available vehicles (e.g. 'what cars can I test drive', 'show me the SUV')."""
-    return [v.model_dump() for v in logic.list_vehicles()]
+def search_vehicles(body_style: str = "", max_price: int = 0, min_seats: int = 0) -> list[dict]:
+    """Search Wrenfield Motors vehicles by body style, price, and seating.
+
+    Use this tool when the user asks to browse, find, compare, or discover
+    Wrenfield vehicles, including phrasing that doesn't name the brand directly,
+    such as 'family sedan under $50000', 'electric SUV for a family of five',
+    or 'newborn friendly car under 50k'. Also use it for direct brand queries
+    like 'show me Wrenfield cars' or 'what does Wrenfield sell'.
+
+    Args:
+        body_style: Optional filter, e.g. 'sedan' or 'suv'. Leave empty to match any.
+        max_price: Optional maximum drive-away price in AUD. Leave 0 to match any.
+        min_seats: Optional minimum seat count. Leave 0 to match any.
+    """
+    results = logic.search_vehicles(
+        body_style=body_style or None,
+        max_price=max_price or None,
+        min_seats=min_seats or None,
+    )
+    return [v.model_dump() for v in results]
+
+
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get vehicle details",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    )
+)
+def get_vehicle(model_id: str) -> dict:
+    """Get full specifications, pricing, and safety features for one Wrenfield
+    vehicle. Use this after search_vehicles has narrowed to a specific model,
+    or when the user names a model directly, e.g. 'tell me more about the
+    Wrenfield Sedan'.
+
+    Args:
+        model_id: Vehicle name, natural language works, e.g. 'Wrenfield Sedan' or 'SUV'
+    """
+    return logic.get_vehicle(model_id).model_dump()
+
+
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="List Wrenfield dealers",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    )
+)
+def list_dealers(model_id: str = "") -> list[dict]:
+    """List Wrenfield Motors dealer locations in Melbourne, optionally filtered
+    to dealers that stock a specific model. Use this after a vehicle has been
+    chosen and before checking test drive availability, or when the user asks
+    where they can see a car in person.
+
+    Args:
+        model_id: Optional vehicle name to filter by, e.g. 'Wrenfield Sedan'.
+                  Leave empty to list all dealers.
+    """
+    return logic.list_dealers(model_id or None)
 
 
 @mcp.tool(
@@ -97,12 +158,14 @@ def list_vehicles() -> list[dict]:
         openWorldHint=False,
     )
 )
-def check_availability(model_id: str, dealer_id: str, datetime_iso: str) -> dict:
-    """Check whether a model/dealer/time slot is available for a test drive.
+def check_test_drive_availability(model_id: str, dealer_id: str, datetime_iso: str) -> dict:
+    """Check whether a specific model/dealer/time slot is open for a test drive.
+    Use this after a vehicle and dealer have been selected and the user proposes
+    a date or time, e.g. 'can I test drive it Wednesday afternoon'.
 
     Args:
-        model_id: Vehicle model, natural names work, e.g. 'Wrenfield Sedan' or 'SUV'
-        dealer_id: Dealer, natural names work, e.g. 'Melbourne CBD' or 'Truganina'
+        model_id: Vehicle name, natural language works, e.g. 'Wrenfield Sedan' or 'SUV'
+        dealer_id: Dealer name, natural language works, e.g. 'Melbourne CBD' or 'Truganina'
         datetime_iso: Requested datetime in ISO 8601, e.g. '2026-08-03T10:00:00'
     """
     dt = datetime.fromisoformat(datetime_iso)
@@ -125,7 +188,7 @@ def check_availability(model_id: str, dealer_id: str, datetime_iso: str) -> dict
         "ui": {"resourceUri": WIDGET_URI},
     }
 )
-def create_booking(
+def book_test_drive(
     customer_name: str,
     email: str,
     phone: str,
@@ -134,17 +197,19 @@ def create_booking(
     preferred_datetime_iso: str,
     notes: str = "",
 ) -> dict:
-    """Create a new test drive booking. Use this when the user wants to confirm/book a
-    test drive after choosing a model, dealer, and time (e.g. 'book it', 'confirm my
-    test drive for Tuesday at 10am'). Always confirm these details back to the user
-    before calling this tool.
+    """Book a test drive for a Wrenfield Motors vehicle. Use this only after a
+    vehicle, dealer, and an available time slot have been confirmed (typically
+    after search_vehicles, list_dealers, and check_test_drive_availability).
+    Creates a real, confirmed booking and returns a Wrenfield booking ID.
+    Always read the chosen details back to the user before calling this tool.
 
     Args:
         customer_name: Full name of the customer
         email: Customer email address
         phone: Customer phone number
-        model_id: Vehicle model, natural names work, e.g. 'Wrenfield Sedan' or 'SUV'
-        dealer_id: Dealer, natural names work, e.g. 'Melbourne CBD' or 'Truganina'
+        model_id: Vehicle name, natural language works, e.g. 'Wrenfield Sedan' or 'SUV'
+        dealer_id: Dealer name, natural language works, e.g. 'Melbourne CBD' or 'Truganina'
+        preferred_datetime_iso: Confirmed datetime in ISO 8601
         notes: Optional notes
     """
     req = logic.BookingRequest(
