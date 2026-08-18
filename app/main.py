@@ -10,7 +10,7 @@ Run locally:
     uvicorn app.main:app --reload --port 8000
 
 Then deploy (Render/Fly.io/Cloud Run/Azure App Service/etc.) so it has
-a public HTTPS URL — GPT Actions require HTTPS with a valid cert.
+a public HTTPS URL, GPT Actions require HTTPS with a valid cert.
 """
 
 from fastapi import FastAPI, HTTPException, Security
@@ -23,14 +23,14 @@ from collections import defaultdict
 
 from . import booking_logic as logic
 
-API_KEY = os.environ.get("GPT_ACTION_API_KEY", "3ca95f8e49272f8aea23976d8ec402e7")
+API_KEY = os.environ.get("GPT_ACTION_API_KEY", "changeme-set-a-real-secret")
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 app = FastAPI(
     title="Test Drive Booking API",
     description="Book, check, and manage vehicle test drives.",
     version="1.0.0",
-    servers=[{"url": "https://aria-gpt-app.onrender.com"}],
+    servers=[{"url": "https://agentic-customer-test-drive-gpt.onrender.com"}],
 )
 
 # Public site (any origin, since this serves real end customers directly in
@@ -103,7 +103,7 @@ def health():
 
 
 # ---------------------------------------------------------------------------
-# Public website endpoints — no API key required.
+# Public website endpoints, no API key required.
 # These serve real end customers directly (public site, no ChatGPT/Claude
 # involved), so they're open by design. A lightweight IP-based rate limit
 # guards against booking spam since there's no per-user auth here.
