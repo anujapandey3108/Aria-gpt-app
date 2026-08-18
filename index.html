@@ -17,6 +17,7 @@
       "@type": "AutomotiveBusiness",
       "@id": "https://anujapandey3108.github.io/Aria-gpt-app/#organization",
       "name": "Wrenfield Motors",
+      "description": "Melbourne dealership offering two electric family vehicles, the Wrenfield SUV and Wrenfield Sedan, both 5-star ANCAP rated and built around newborn and family safety.",
       "url": "https://anujapandey3108.github.io/Aria-gpt-app/",
       "areaServed": { "@type": "City", "name": "Melbourne" },
       "makesOffer": [
@@ -183,6 +184,33 @@
     display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 5vw; align-items: center;
     max-width: 1400px; margin: 0 auto;
   }
+  .stat-panel {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    background: var(--steel); border: 1px solid var(--line); border-radius: 6px; padding: 32px;
+  }
+  .stat { display: flex; flex-direction: column; gap: 6px; }
+  .stat-num { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 40px; color: var(--ember); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--fog); }
+
+  .about { padding: 6vw 6vw; max-width: 1400px; margin: 0 auto; }
+  .about-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 5vw; }
+  .about-copy p { color: var(--fog); font-size: 16px; margin-bottom: 18px; }
+  .about-values { display: flex; flex-direction: column; gap: 20px; }
+  .value-card { border-top: 1px solid var(--line); padding-top: 16px; }
+  .value-num { color: var(--ember); font-size: 12px; margin-bottom: 6px; }
+  .value-card h4 { font-family: 'Big Shoulders Display', sans-serif; font-size: 20px; text-transform: uppercase; margin-bottom: 6px; }
+  .value-card p { color: var(--fog); font-size: 14px; }
+
+  .testdrive { padding: 6vw 6vw; background: var(--steel-light); }
+  .testdrive-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 5vw; align-items: start; }
+  .agent-callout { padding-top: 8px; }
+  .agent-badge {
+    display: inline-block; font-size: 11px; letter-spacing: 0.08em; color: var(--ember);
+    border: 1px solid var(--ember); border-radius: 3px; padding: 4px 10px; margin-bottom: 18px;
+  }
+  .agent-callout h3 { font-family: 'Big Shoulders Display', sans-serif; font-size: 28px; text-transform: uppercase; margin-bottom: 14px; }
+  .agent-callout p { color: var(--fog); font-size: 15px; margin-bottom: 14px; }
+  .agent-note { font-size: 13px; border-left: 2px solid var(--ember); padding-left: 14px; }
   .eyebrow {
     display: inline-flex; align-items: center; gap: 8px;
     font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ember);
@@ -332,6 +360,9 @@
     .model-grid { grid-template-columns: 1fr; }
     .how-steps { grid-template-columns: 1fr; }
     .section-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .about-grid { grid-template-columns: 1fr; gap: 32px; }
+    .testdrive-grid { grid-template-columns: 1fr; gap: 32px; }
+    .stat-panel { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -340,84 +371,58 @@
 <nav>
   <div class="logo"><span class="logo-dot"></span>WRENFIELD</div>
   <div class="nav-links">
+    <a href="#about">About</a>
     <a href="#models">Models</a>
-    <a href="#book">Book</a>
-    <a href="#how">How it works</a>
+    <a href="#book">Test Drive</a>
   </div>
   <a href="#book" class="nav-cta">Book a test drive</a>
 </nav>
 
 <section class="hero">
   <div>
-    <div class="eyebrow">Available now in Melbourne, 2 dealer locations</div>
-    <h1 class="display">Drive it<br>before you<br><span class="accent">decide.</span></h1>
-    <p>Book a test drive for the Wrenfield SUV or Sedan in under a minute. Choose Melbourne CBD or Truganina, pick your time. No salesperson call required to get started.</p>
+    <div class="eyebrow">Melbourne owned, family focused</div>
+    <h1 class="display">Family cars<br>built to be<br><span class="accent">trusted.</span></h1>
+    <p>Wrenfield Motors designs electric family vehicles around one question: is this the safest, most livable car for a growing household. Two models, both 5-star ANCAP rated, both built with newborn car seats in mind from day one.</p>
     <div class="hero-actions">
-      <a href="#book" class="btn-primary">Book a test drive</a>
-      <a href="#models" class="btn-ghost">See the models</a>
+      <a href="#models" class="btn-primary">Explore our models</a>
+      <a href="#about" class="btn-ghost">Our story</a>
     </div>
   </div>
 
-  <div class="cluster" id="book">
-    <div class="cluster-label">
-      <span>BOOKING CONSOLE</span>
-      <span class="cluster-status"><span class="status-dot"></span>READY</span>
-    </div>
+  <div class="stat-panel">
+    <div class="stat"><span class="stat-num">5</span><span class="stat-label">Star ANCAP rating, both models</span></div>
+    <div class="stat"><span class="stat-num">2</span><span class="stat-label">Dealer locations across Melbourne</span></div>
+    <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Electric drivetrain, both models</span></div>
+    <div class="stat"><span class="stat-num">&lt;50k</span><span class="stat-label">Wrenfield Sedan drive away price</span></div>
+  </div>
+</section>
 
-    <div class="field">
-      <label for="model">Model</label>
-      <select id="model" name="model" aria-label="Vehicle model">
-        <option value="">Choose a model</option>
-        <option value="suv-2026">Wrenfield SUV (2026)</option>
-        <option value="sedan-2026">Wrenfield Sedan (2026)</option>
-      </select>
+<section class="about" id="about">
+  <div class="section-head">
+    <h2 class="display">About Wrenfield</h2>
+    <p>A small dealership with one focus: family safety, done properly.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-copy">
+      <p>Wrenfield Motors is a Melbourne dealership built around a simple premise: most family cars treat safety as a checkbox, not a design principle. We work with one platform, in two body styles, so every engineering decision, from ISOFIX placement to rear door geometry, gets the attention a shared platform allows rather than being spread across a large lineup.</p>
+      <p>Both the Wrenfield SUV and Wrenfield Sedan carry a 5-star ANCAP safety rating, full ISOFIX and top-tether child seat anchoring on every rear seat, and an active-safety suite as standard, not an option pack. We sell to families first, and that shapes everything from our showroom hours to how our test drive booking works.</p>
     </div>
-
-    <div class="field">
-      <label for="dealer">Dealer</label>
-      <select id="dealer" name="dealer" aria-label="Dealer location">
-        <option value="">Choose a model first</option>
-        <option value="dealer-melbourne-cbd">Melbourne CBD</option>
-        <option value="dealer-truganina">Truganina</option>
-      </select>
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="date">Date</label>
-        <input type="date" id="date" name="date" aria-label="Preferred date">
+    <div class="about-values">
+      <div class="value-card">
+        <div class="value-num mono">01</div>
+        <h4>Safety as standard</h4>
+        <p>5-star ANCAP, ISOFIX on every rear seat, and active-safety tech included, not upsold.</p>
       </div>
-      <div class="field">
-        <label for="time">Time</label>
-        <input type="time" id="time" name="time" value="10:00" aria-label="Preferred time">
+      <div class="value-card">
+        <div class="value-num mono">02</div>
+        <h4>Newborn ready</h4>
+        <p>Door geometry, rear legroom, and capsule access are tested with real infant car seats, not just spec sheets.</p>
       </div>
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="customer_name" autocomplete="name" placeholder="Jordan Lee" aria-label="Full name">
+      <div class="value-card">
+        <div class="value-num mono">03</div>
+        <h4>No pressure sales</h4>
+        <p>Browse, compare, and book a test drive on your own time, online or in person.</p>
       </div>
-      <div class="field">
-        <label for="phone">Phone</label>
-        <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="04XX XXX XXX" aria-label="Phone number">
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address">
-    </div>
-
-    <div class="readout idle" id="readout">Fill in your details to check availability.</div>
-
-    <button class="ignite" id="ignite" disabled>Confirm booking</button>
-
-    <div class="confirmation" id="confirmation">
-      <div class="row"><span>Booking ID</span><span id="conf-id"></span></div>
-      <div class="row"><span>Vehicle</span><span id="conf-model"></span></div>
-      <div class="row"><span>Dealer</span><span id="conf-dealer"></span></div>
-      <div class="row"><span>When</span><span id="conf-when"></span></div>
     </div>
   </div>
 </section>
@@ -501,6 +506,85 @@
       </div>
     </article>
 
+  </div>
+</section>
+
+<section class="testdrive" id="book">
+  <div class="section-head">
+    <h2 class="display">Book a test drive</h2>
+    <p>Pick a model and dealer below, or ask ChatGPT, Claude, or another AI assistant to book it for you directly.</p>
+  </div>
+
+  <div class="testdrive-grid">
+    <div class="agent-callout">
+      <div class="agent-badge mono">AI BOOKING AGENT</div>
+      <h3>Book without leaving your chat</h3>
+      <p>Wrenfield's booking system is available as a tool for AI assistants. Ask ChatGPT or Claude something like "book a test drive for the Wrenfield Sedan in Melbourne CBD" and it can check availability and confirm the booking directly, using the same system as the console on this page.</p>
+      <p class="agent-note">Powered by an MCP server and REST API behind this site, model and dealer names are understood in plain language, no internal codes required.</p>
+    </div>
+
+    <div class="cluster">
+      <div class="cluster-label">
+        <span>BOOKING CONSOLE</span>
+        <span class="cluster-status"><span class="status-dot"></span>READY</span>
+      </div>
+
+      <div class="field">
+        <label for="model">Model</label>
+        <select id="model" name="model" aria-label="Vehicle model">
+          <option value="">Choose a model</option>
+          <option value="suv-2026">Wrenfield SUV (2026)</option>
+          <option value="sedan-2026">Wrenfield Sedan (2026)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="dealer">Dealer</label>
+        <select id="dealer" name="dealer" aria-label="Dealer location">
+          <option value="">Choose a model first</option>
+          <option value="dealer-melbourne-cbd">Melbourne CBD</option>
+          <option value="dealer-truganina">Truganina</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" aria-label="Preferred date">
+        </div>
+        <div class="field">
+          <label for="time">Time</label>
+          <input type="time" id="time" name="time" value="10:00" aria-label="Preferred time">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="customer_name" autocomplete="name" placeholder="Jordan Lee" aria-label="Full name">
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="04XX XXX XXX" aria-label="Phone number">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address">
+      </div>
+
+      <div class="readout idle" id="readout">Fill in your details to check availability.</div>
+
+      <button class="ignite" id="ignite" disabled>Confirm booking</button>
+
+      <div class="confirmation" id="confirmation">
+        <div class="row"><span>Booking ID</span><span id="conf-id"></span></div>
+        <div class="row"><span>Vehicle</span><span id="conf-model"></span></div>
+        <div class="row"><span>Dealer</span><span id="conf-dealer"></span></div>
+        <div class="row"><span>When</span><span id="conf-when"></span></div>
+      </div>
+    </div>
   </div>
 </section>
 
