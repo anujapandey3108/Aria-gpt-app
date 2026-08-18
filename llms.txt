@@ -15,12 +15,12 @@ Both models are newborn and family safety oriented, with full ISOFIX coverage, h
 
 The booking system is available as a machine-callable API, not just a browser form.
 
-- **REST API and OpenAPI schema**: https://agentic-customer-test-drive-gpt.onrender.com/openapi.json
+- **REST API and OpenAPI schema**: https://aria-gpt-app.onrender.com/openapi.json
 - **Public booking endpoints (no authentication required)**:
   - `GET /public/vehicles`: list available models
   - `GET /public/availability?model_id=&dealer_id=&datetime_iso=`: check a slot
   - `POST /public/bookings`: confirm a booking (requires customer_name, email, phone, model_id, dealer_id, preferred_datetime)
-- **MCP server** (for ChatGPT Apps and Claude Connectors): https://agentic-customer-test-drive-mcp.onrender.com/mcp. Exposes `list_vehicles`, `check_availability`, `create_booking`, `get_booking`, `cancel_booking` as tools.
+- **MCP server** (for ChatGPT Apps and Claude Connectors): https://aria-gpt-mcp.onrender.com/mcp. Exposes `list_vehicles`, `check_availability`, `create_booking`, `get_booking`, `cancel_booking` as tools.
 
 `model_id` and `dealer_id` accept natural language, for example "Wrenfield Sedan" or "Melbourne CBD". Exact internal identifiers are not required. Booking slots are weekdays only, 9am to 5pm, at least 30 minutes apart per dealer.
 
