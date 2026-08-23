@@ -1,8 +1,9 @@
 """
-REST API for the Test Drive Booking GPT app.
+REST API for Wrenfield Motors' test drive booking.
 
-This is what you point a Custom GPT's "Actions" at.
-FastAPI auto-generates an OpenAPI 3.1 schema at /openapi.json,
+Powers the public website at https://wrenfield.aiaccelerate.com.au/
+(the /public/* routes below) and a Custom GPT's Actions (the Bearer-protected
+routes). FastAPI auto-generates an OpenAPI 3.1 schema at /openapi.json,
 which you paste (or import via URL) into the GPT Builder's
 Actions -> "Import from URL" field.
 
@@ -27,17 +28,24 @@ API_KEY = os.environ.get("GPT_ACTION_API_KEY", "changeme-set-a-real-secret")
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 app = FastAPI(
-    title="Test Drive Booking API",
-    description="Book, check, and manage vehicle test drives.",
+    title="Wrenfield Motors Test Drive Booking API",
+    description=(
+        "Book, check, and manage Wrenfield Motors test drives. "
+        "Powers https://wrenfield.aiaccelerate.com.au/"
+    ),
     version="1.0.0",
     servers=[{"url": "https://aria-gpt-app.onrender.com"}],
 )
 
-# Public site (any origin, since this serves real end customers directly in
-# their browser). Tighten allow_origins to your real domain once you have one.
+# Restricted to the real Wrenfield Motors website domain. If a staging or
+# preview domain is also needed, add it to this list rather than reverting
+# to a wildcard.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://wrenfield.aiaccelerate.com.au",
+        "https://anujapandey3108.github.io",  # legacy GitHub Pages URL, safe to remove once fully migrated
+    ],
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
