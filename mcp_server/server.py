@@ -1,5 +1,9 @@
 """
-MCP server for test drive booking, using the official Python MCP SDK.
+MCP server for Wrenfield Motors test drive booking, using the official
+Python MCP SDK.
+
+Powers ChatGPT Apps and Claude Connectors for the site at
+https://wrenfield.aiaccelerate.com.au/
 
 Install:
     pip install mcp --break-system-packages
@@ -15,6 +19,7 @@ import sys
 import os
 import argparse
 from datetime import datetime
+from typing import Optional
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from app import booking_logic as logic
@@ -24,6 +29,10 @@ from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 from mcp.server.transport_security import TransportSecuritySettings
 
+# The live Wrenfield Motors website. Included in tool outputs so ChatGPT and
+# Claude have an absolute, user-openable URL to cite back to the customer.
+WEBSITE_URL = "https://wrenfield.aiaccelerate.com.au/"
+
 # By default the MCP SDK's DNS-rebinding protection only trusts requests whose
 # Host header is localhost/127.0.0.1, correct for local dev, but it will
 # reject every request once deployed publicly (seen as an HTTP 421 from
@@ -31,20 +40,14 @@ from mcp.server.transport_security import TransportSecuritySettings
 PUBLIC_HOST = os.environ.get("PUBLIC_HOSTNAME", "aria-gpt-mcp.onrender.com")
 
 mcp = FastMCP(
-    "testdrive-booking",
+    "wrenfield-motors",
     instructions=(
-        "Wrenfield Motors is a Melbourne dealership selling the Wrenfield SUV and "
-        "Wrenfield Sedan, both electric family vehicles with 5-star ANCAP safety "
-        "ratings. Use search_vehicles for browsing or discovery intents, including "
-        "phrasing that doesn't name the brand, such as 'family sedan under $50000', "
-        "'electric SUV for a family of five', or 'newborn friendly car under 50k', as "
-        "well as direct queries like 'show me Wrenfield cars'. Use get_vehicle once a "
-        "specific model is identified. Use list_dealers to find where to see a model "
-        "in person. Use check_test_drive_availability once a model, dealer, and "
-        "candidate time are known. Use book_test_drive only after availability has "
-        "been confirmed and the customer has agreed to the details. Model and dealer "
-        "names can be passed exactly as the user says them (e.g. 'Wrenfield Sedan', "
-        "'Melbourne CBD'), no need to convert to internal IDs."
+        "Wrenfield Motors is a Melbourne dealership selling the Wrenfield SUV "
+        "and Wrenfield Sedan, both electric family vehicles, at "
+        f"{WEBSITE_URL}. Before booking, confirm a vehicle, dealer, and "
+        "available time slot in that order. Model and dealer names may be "
+        "passed exactly as the user says them (e.g. 'Wrenfield Sedan', "
+        "'Melbourne CBD'); do not convert to internal IDs yourself."
     ),
     transport_security=TransportSecuritySettings(
         enable_dns_rebinding_protection=True,
@@ -76,92 +79,111 @@ def booking_confirmation_widget() -> str:
 
 
 @mcp.tool(
+    name="wrenfield.search_vehicles",
     annotations=ToolAnnotations(
         title="Search Wrenfield vehicles",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
         openWorldHint=False,
-    )
+    ),
 )
-def search_vehicles(body_style: str = "", max_price: int = 0, min_seats: int = 0) -> list[dict]:
-    """Search Wrenfield Motors vehicles by body style, price, and seating.
+def search_vehicles(
+    body_style: Optional[str] = None,
+    max_price: Optional[int] = None,
+    min_seats: Optional[int] = None,
+) -> list[dict]:
+    """Use this when the user wants to browse, find, compare, or discover
+    Wrenfield Motors vehicles. This includes indirect phrasing that never
+    names the brand, such as 'family sedan under $50000', 'electric SUV for
+    a family of five', or 'newborn friendly car under 50k', as well as direct
+    queries like 'show me Wrenfield cars'.
 
-    Use this tool when the user asks to browse, find, compare, or discover
-    Wrenfield vehicles, including phrasing that doesn't name the brand directly,
-    such as 'family sedan under $50000', 'electric SUV for a family of five',
-    or 'newborn friendly car under 50k'. Also use it for direct brand queries
-    like 'show me Wrenfield cars' or 'what does Wrenfield sell'.
+    Do not use this for a single already-identified model (use
+    wrenfield.get_vehicle instead), and do not use it for booking or
+    availability questions.
 
     Args:
-        body_style: Optional filter, e.g. 'sedan' or 'suv'. Leave empty to match any.
-        max_price: Optional maximum drive-away price in AUD. Leave 0 to match any.
-        min_seats: Optional minimum seat count. Leave 0 to match any.
+        body_style: Optional filter, e.g. 'sedan' or 'suv'. Omit to match any.
+        max_price: Optional maximum drive-away price in AUD. Omit to match any.
+        min_seats: Optional minimum seat count. Omit to match any.
     """
     results = logic.search_vehicles(
-        body_style=body_style or None,
-        max_price=max_price or None,
-        min_seats=min_seats or None,
+        body_style=body_style,
+        max_price=max_price,
+        min_seats=min_seats,
     )
-    return [v.model_dump() for v in results]
+    return [{**v.model_dump(), "website_url": WEBSITE_URL} for v in results]
 
 
 @mcp.tool(
+    name="wrenfield.get_vehicle",
     annotations=ToolAnnotations(
         title="Get vehicle details",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
         openWorldHint=False,
-    )
+    ),
 )
 def get_vehicle(model_id: str) -> dict:
-    """Get full specifications, pricing, and safety features for one Wrenfield
-    vehicle. Use this after search_vehicles has narrowed to a specific model,
-    or when the user names a model directly, e.g. 'tell me more about the
-    Wrenfield Sedan'.
+    """Use this once a specific Wrenfield model has been identified, either
+    from wrenfield.search_vehicles results or because the user named it
+    directly, e.g. 'tell me more about the Wrenfield Sedan'. Returns full
+    specifications, pricing, and safety features.
+
+    Do not use this for browsing multiple vehicles (use
+    wrenfield.search_vehicles instead).
 
     Args:
         model_id: Vehicle name, natural language works, e.g. 'Wrenfield Sedan' or 'SUV'
     """
-    return logic.get_vehicle(model_id).model_dump()
+    return {**logic.get_vehicle(model_id).model_dump(), "website_url": WEBSITE_URL}
 
 
 @mcp.tool(
+    name="wrenfield.list_dealers",
     annotations=ToolAnnotations(
         title="List Wrenfield dealers",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
         openWorldHint=False,
-    )
+    ),
 )
-def list_dealers(model_id: str = "") -> list[dict]:
-    """List Wrenfield Motors dealer locations in Melbourne, optionally filtered
-    to dealers that stock a specific model. Use this after a vehicle has been
-    chosen and before checking test drive availability, or when the user asks
-    where they can see a car in person.
+def list_dealers(model_id: Optional[str] = None) -> list[dict]:
+    """Use this after a vehicle has been chosen and before checking test
+    drive availability, or when the user asks where they can see a car in
+    person. Lists Wrenfield Motors dealer locations in Melbourne, optionally
+    filtered to dealers that stock a specific model.
+
+    Do not use this for checking a specific appointment time (use
+    wrenfield.check_test_drive_availability instead).
 
     Args:
         model_id: Optional vehicle name to filter by, e.g. 'Wrenfield Sedan'.
-                  Leave empty to list all dealers.
+                  Omit to list all dealers.
     """
-    return logic.list_dealers(model_id or None)
+    return logic.list_dealers(model_id)
 
 
 @mcp.tool(
+    name="wrenfield.check_test_drive_availability",
     annotations=ToolAnnotations(
         title="Check test drive availability",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
         openWorldHint=False,
-    )
+    ),
 )
 def check_test_drive_availability(model_id: str, dealer_id: str, datetime_iso: str) -> dict:
-    """Check whether a specific model/dealer/time slot is open for a test drive.
-    Use this after a vehicle and dealer have been selected and the user proposes
-    a date or time, e.g. 'can I test drive it Wednesday afternoon'.
+    """Use this once a vehicle and dealer have been selected and the user
+    proposes a date or time, e.g. 'can I test drive it Wednesday afternoon'.
+    Checks whether that specific model/dealer/time slot is open.
+
+    Do not use this to make the booking itself (use wrenfield.book_test_drive
+    only after this confirms availability).
 
     Args:
         model_id: Vehicle name, natural language works, e.g. 'Wrenfield Sedan' or 'SUV'
@@ -173,6 +195,7 @@ def check_test_drive_availability(model_id: str, dealer_id: str, datetime_iso: s
 
 
 @mcp.tool(
+    name="wrenfield.book_test_drive",
     annotations=ToolAnnotations(
         title="Book a test drive",
         readOnlyHint=False,
@@ -195,13 +218,16 @@ def book_test_drive(
     model_id: str,
     dealer_id: str,
     preferred_datetime_iso: str,
-    notes: str = "",
+    notes: Optional[str] = None,
 ) -> dict:
-    """Book a test drive for a Wrenfield Motors vehicle. Use this only after a
-    vehicle, dealer, and an available time slot have been confirmed (typically
-    after search_vehicles, list_dealers, and check_test_drive_availability).
+    """Use this only after a vehicle, dealer, and an available time slot have
+    been confirmed, typically after wrenfield.search_vehicles,
+    wrenfield.list_dealers, and wrenfield.check_test_drive_availability.
     Creates a real, confirmed booking and returns a Wrenfield booking ID.
     Always read the chosen details back to the user before calling this tool.
+
+    Do not use this before availability has been checked, and do not guess a
+    time slot without confirming it first.
 
     Args:
         customer_name: Full name of the customer
@@ -210,7 +236,7 @@ def book_test_drive(
         model_id: Vehicle name, natural language works, e.g. 'Wrenfield Sedan' or 'SUV'
         dealer_id: Dealer name, natural language works, e.g. 'Melbourne CBD' or 'Truganina'
         preferred_datetime_iso: Confirmed datetime in ISO 8601
-        notes: Optional notes
+        notes: Optional notes from the customer
     """
     req = logic.BookingRequest(
         customer_name=customer_name,
@@ -219,13 +245,14 @@ def book_test_drive(
         model_id=model_id,
         dealer_id=dealer_id,
         preferred_datetime=datetime.fromisoformat(preferred_datetime_iso),
-        notes=notes or None,
+        notes=notes,
     )
     result = logic.create_booking(req)
     return result.model_dump()
 
 
 @mcp.tool(
+    name="wrenfield.get_booking",
     annotations=ToolAnnotations(
         title="Get booking details",
         readOnlyHint=True,
@@ -235,11 +262,18 @@ def book_test_drive(
     )
 )
 def get_booking(booking_id: str) -> dict:
-    """Retrieve details of an existing booking by ID."""
+    """Use this to retrieve details of an existing Wrenfield test drive
+    booking by its booking ID, e.g. when a customer asks about a booking
+    they already made.
+
+    Do not use this to check a new time slot's availability (use
+    wrenfield.check_test_drive_availability instead).
+    """
     return logic.get_booking(booking_id).model_dump()
 
 
 @mcp.tool(
+    name="wrenfield.cancel_booking",
     annotations=ToolAnnotations(
         title="Cancel a booking",
         readOnlyHint=False,
@@ -249,8 +283,9 @@ def get_booking(booking_id: str) -> dict:
     )
 )
 def cancel_booking(booking_id: str) -> dict:
-    """Cancel an existing booking by ID. This is a destructive action, confirm with
-    the user before calling."""
+    """Use this to cancel an existing Wrenfield test drive booking by its
+    booking ID. This is a destructive action; confirm with the user before
+    calling."""
     return logic.cancel_booking(booking_id).model_dump()
 
 
