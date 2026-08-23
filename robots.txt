@@ -25,4 +25,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://anujapandey3108.github.io/Aria-gpt-app/sitemap.xml
+Sitemap: https://wrenfield.aiaccelerate.com.au/sitemap.xml
