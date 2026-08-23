@@ -35,7 +35,7 @@ For agents: the booking system is available as a machine-callable API, not just 
 
 ## Page sections
 
-The homepage (https://anujapandey3108.github.io/Aria-gpt-app/) is organized as:
+The homepage (https://wrenfield.aiaccelerate.com.au/) is organized as:
 - Hero: company introduction and key stats
 - About (#about): company mission and values
 - Models (#models): the Wrenfield SUV and Wrenfield Sedan, with full specs and pricing
