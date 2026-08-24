@@ -78,6 +78,24 @@ def booking_confirmation_widget() -> str:
     return _load_widget_html()
 
 
+# OpenAI plugin submission domain verification. When the submission portal
+# shows a "Domain not verified" challenge, it gives a token; set that value
+# as the OPENAI_APPS_CHALLENGE_TOKEN env var on this Render service (do not
+# commit the real token to source control). This route must return only the
+# bare token string, no JSON wrapper, per OpenAI's submission requirements.
+from starlette.responses import PlainTextResponse
+from starlette.requests import Request
+
+OPENAI_APPS_CHALLENGE_TOKEN = os.environ.get("OPENAI_APPS_CHALLENGE_TOKEN", "")
+
+
+@mcp.custom_route("/.well-known/openai-apps-challenge", methods=["GET"])
+async def openai_apps_challenge(request: Request) -> PlainTextResponse:
+    if not OPENAI_APPS_CHALLENGE_TOKEN:
+        return PlainTextResponse("Not configured", status_code=404)
+    return PlainTextResponse(OPENAI_APPS_CHALLENGE_TOKEN)
+
+
 @mcp.tool(
     name="wrenfield.search_vehicles",
     annotations=ToolAnnotations(
