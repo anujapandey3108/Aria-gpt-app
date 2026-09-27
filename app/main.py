@@ -17,12 +17,14 @@ a public HTTPS URL, GPT Actions require HTTPS with a valid cert.
 from fastapi import FastAPI, HTTPException, Security
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Optional
 import os
 import time
 from collections import defaultdict
 
 from . import booking_logic as logic
+from . import agent as agent_logic
 
 API_KEY = os.environ.get("GPT_ACTION_API_KEY", "changeme-set-a-real-secret")
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
@@ -178,3 +180,53 @@ def public_create_booking(req: logic.BookingRequest, request: Request):
         return logic.create_booking(req)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# ---------------------------------------------------------------------------
+# Website chat assistant: the "VGA Branded Booking Agent" widget on
+# wrenfield.aiaccelerate.com.au. Same booking_logic as every other channel,
+# just with a conversational front end that needs no plugin, connector, or
+# paid AI plan, since it's a channel Wrenfield owns outright.
+# A separate, looser rate limit than booking creation (chat is many small
+# messages, not the consequential action itself; create_booking still goes
+# through the exact same logic.create_booking as the manual console).
+# ---------------------------------------------------------------------------
+
+_chat_attempts: dict[str, list[float]] = defaultdict(list)
+CHAT_RATE_LIMIT_WINDOW_SECONDS = 60
+CHAT_RATE_LIMIT_MAX_ATTEMPTS = 20
+
+
+def _check_chat_rate_limit(client_ip: str):
+    now = time.time()
+    attempts = _chat_attempts[client_ip]
+    attempts[:] = [t for t in attempts if now - t < CHAT_RATE_LIMIT_WINDOW_SECONDS]
+    if len(attempts) >= CHAT_RATE_LIMIT_MAX_ATTEMPTS:
+        raise HTTPException(
+            status_code=429, detail="Too many messages, please slow down a moment."
+        )
+    attempts.append(now)
+
+
+class ChatMessage(BaseModel):
+    session_id: Optional[str] = Field(
+        None, description="Returned from a previous call; omit on the first message."
+    )
+    message: str
+
+
+class ChatResponse(BaseModel):
+    session_id: str
+    reply: str
+    booking: Optional[dict] = None
+
+
+@app.post("/public/agent/chat", response_model=ChatResponse)
+def public_agent_chat(req: ChatMessage, request: Request):
+    """One turn of the embedded website chat assistant."""
+    client_ip = request.client.host if request.client else "unknown"
+    _check_chat_rate_limit(client_ip)
+    try:
+        return agent_logic.handle_chat_message(req.session_id, req.message)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
