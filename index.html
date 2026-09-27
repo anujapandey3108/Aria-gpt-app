@@ -305,6 +305,83 @@
   .confirmation .row { display: flex; justify-content: space-between; padding: 4px 0; }
   .confirmation .row span:first-child { color: var(--fog); }
 
+  /* Embedded chat assistant — the VGA-owned "Booking Agent" widget, works
+     with zero setup, no plugin/connector, no paid plan on any side. */
+  .chat-launcher {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
+    background: var(--ember); color: var(--asphalt);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .chat-launcher:hover { transform: translateY(-2px); background: #ff6f54; }
+  .chat-launcher.hide { opacity: 0; pointer-events: none; transform: scale(0.8); }
+  .chat-launcher svg { width: 26px; height: 26px; }
+
+  .chat-panel {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100vh - 48px));
+    background: var(--steel); border: 1px solid var(--line); border-radius: 10px;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    opacity: 0; transform: translateY(16px) scale(0.98); pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .chat-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+  .chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px; border-bottom: 1px solid var(--line); background: var(--steel-light);
+  }
+  .chat-header-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
+  .chat-header-title .status-dot { width: 7px; height: 7px; }
+  .chat-header-sub { font-size: 11px; color: var(--fog); margin-top: 2px; }
+  .chat-close {
+    background: none; border: none; color: var(--fog); cursor: pointer; font-size: 20px;
+    line-height: 1; padding: 4px;
+  }
+  .chat-close:hover { color: var(--paper); }
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .chat-msg {
+    max-width: 85%; padding: 10px 13px; border-radius: 10px; font-size: 14px; line-height: 1.45;
+    white-space: pre-wrap;
+  }
+  .chat-msg.assistant { align-self: flex-start; background: var(--steel-light); color: var(--paper); border-bottom-left-radius: 2px; }
+  .chat-msg.user { align-self: flex-end; background: var(--ember); color: var(--asphalt); border-bottom-right-radius: 2px; font-weight: 500; }
+  .chat-msg.err { align-self: flex-start; background: var(--asphalt); border: 1px solid var(--ember-dim); color: var(--paper); }
+  .chat-msg.thinking { color: var(--fog); font-style: italic; }
+  .chat-booking-card {
+    align-self: stretch; background: var(--asphalt); border: 1px solid var(--good); border-radius: 8px;
+    padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  }
+  .chat-booking-card .row { display: flex; justify-content: space-between; padding: 3px 0; }
+  .chat-booking-card .row span:first-child { color: var(--fog); }
+  .chat-booking-card .badge {
+    color: var(--good); text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em;
+    margin-bottom: 6px; display: block;
+  }
+  .chat-input-row {
+    display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); background: var(--steel);
+  }
+  .chat-input {
+    flex: 1; background: var(--asphalt); border: 1px solid var(--line); color: var(--paper);
+    padding: 10px 12px; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 14px;
+  }
+  .chat-input:focus { outline: none; border-color: var(--ember); }
+  .chat-send {
+    background: var(--ember); color: var(--asphalt); border: none; border-radius: 6px;
+    padding: 0 16px; font-weight: 600; cursor: pointer; font-size: 14px;
+  }
+  .chat-send:hover:not(:disabled) { background: #ff6f54; }
+  .chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  @media (max-width: 480px) {
+    .chat-panel { right: 16px; bottom: 16px; }
+    .chat-launcher { right: 16px; bottom: 16px; }
+  }
+
   .models { padding: 6vw 6vw; background: var(--paper); color: var(--asphalt); }
   .section-head { max-width: 1400px; margin: 0 auto 48px; display: flex; justify-content: space-between; align-items: flex-end; }
   .section-head h2 { font-size: clamp(36px, 4vw, 56px); }
@@ -522,7 +599,8 @@
       <div class="agent-badge mono">AI BOOKING AGENT</div>
       <h3>Book without leaving your chat</h3>
       <p>Wrenfield's booking system is available as a tool for AI assistants. Ask ChatGPT or Claude something like "book a test drive for the Wrenfield Sedan in Melbourne CBD" and it can check availability and confirm the booking directly, using the same system as the console on this page.</p>
-      <p class="agent-note">Powered by an MCP server and REST API behind this site, model and dealer names are understood in plain language, no internal codes required.</p>
+      <p class="agent-note">Prefer to stay right here? Use the chat bubble in the corner of this page, it's the same assistant, built into the Wrenfield site itself.</p>
+      <button class="btn-primary" id="open-chat-cta" style="margin-top: 6px;">Chat to book →</button>
     </div>
 
     <div class="cluster">
@@ -615,6 +693,28 @@
   <div>© 2026 Wrenfield Motors. All rights reserved.</div>
   <div class="mono">Melbourne, Australia</div>
 </footer>
+
+<!-- Embedded chat assistant: floating launcher + panel, present on every page. -->
+<button class="chat-launcher" id="chat-toggle" aria-label="Chat with Wrenfield">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+  </svg>
+</button>
+
+<div class="chat-panel" id="chat-panel" role="dialog" aria-label="Wrenfield chat assistant">
+  <div class="chat-header">
+    <div>
+      <div class="chat-header-title"><span class="status-dot"></span>Wrenfield Assistant</div>
+      <div class="chat-header-sub">Find a model, book a test drive, right here</div>
+    </div>
+    <button class="chat-close" id="chat-close" aria-label="Close chat">×</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <form class="chat-input-row" id="chat-form">
+    <input class="chat-input" id="chat-input" type="text" placeholder="e.g. family SUV under $60k" autocomplete="off" aria-label="Message">
+    <button class="chat-send" id="chat-send" type="submit">Send</button>
+  </form>
+</div>
 
 <script>
   const API_BASE = "https://aria-gpt-app.onrender.com";
@@ -790,6 +890,102 @@
       igniteBtn.textContent = 'Confirm booking';
       igniteBtn.disabled = false;
     }
+  });
+
+  // ---------------------------------------------------------------------
+  // Embedded chat assistant
+  // ---------------------------------------------------------------------
+  const CHAT_API = `${API_BASE}/public/agent/chat`;
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatPanel = document.getElementById('chat-panel');
+  const chatClose = document.getElementById('chat-close');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+  const openChatCta = document.getElementById('open-chat-cta');
+
+  let chatSessionId = null;
+  let chatOpened = false;
+
+  function appendChatMessage(role, text) {
+    const el = document.createElement('div');
+    el.className = `chat-msg ${role}`;
+    el.textContent = text;
+    chatMessages.appendChild(el);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return el;
+  }
+
+  function vehicleNameFor(modelId) {
+    const v = vehicles.find(v => v.model_id === modelId);
+    return v ? v.name : modelId;
+  }
+
+  function appendBookingCard(booking) {
+    const el = document.createElement('div');
+    el.className = 'chat-booking-card';
+    el.innerHTML = `
+      <span class="badge">✓ Test drive confirmed</span>
+      <div class="row"><span>Booking ID</span><span>${booking.booking_id}</span></div>
+      <div class="row"><span>Vehicle</span><span>${vehicleNameFor(booking.model_id)}</span></div>
+      <div class="row"><span>Dealer</span><span>${dealerLabels[booking.dealer_id] || booking.dealer_id}</span></div>
+      <div class="row"><span>When</span><span>${booking.confirmed_datetime.replace('T', ' ')}</span></div>
+    `;
+    chatMessages.appendChild(el);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function openChat() {
+    chatPanel.classList.add('open');
+    chatToggle.classList.add('hide');
+    if (!chatOpened) {
+      chatOpened = true;
+      appendChatMessage('assistant', "Hi, I'm the Wrenfield assistant. Tell me what you're after, e.g. \"family SUV under $60k\", and I can help you book a test drive right here.");
+    }
+    chatInput.focus();
+  }
+  function closeChat() {
+    chatPanel.classList.remove('open');
+    chatToggle.classList.remove('hide');
+  }
+  chatToggle.addEventListener('click', openChat);
+  chatClose.addEventListener('click', closeChat);
+  if (openChatCta) openChatCta.addEventListener('click', openChat);
+
+  async function sendChatMessage(text) {
+    appendChatMessage('user', text);
+    const thinking = appendChatMessage('assistant thinking', 'Typing…');
+    chatSend.disabled = true;
+    try {
+      const res = await fetch(CHAT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: chatSessionId, message: text })
+      });
+      const data = await res.json();
+      thinking.remove();
+      if (!res.ok) {
+        appendChatMessage('assistant err', data.detail || 'Something went wrong, please try again.');
+        return;
+      }
+      chatSessionId = data.session_id;
+      appendChatMessage('assistant', data.reply);
+      if (data.booking) appendBookingCard(data.booking);
+    } catch (e) {
+      thinking.remove();
+      appendChatMessage('assistant err', 'Could not reach the assistant. The server may be waking up, try again in a moment.');
+    } finally {
+      chatSend.disabled = false;
+    }
+  }
+
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = '';
+    sendChatMessage(text);
   });
 
   loadVehicles();
