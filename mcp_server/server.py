@@ -266,7 +266,13 @@ def book_test_drive(
         notes=notes,
     )
     result = logic.create_booking(req)
-    return result.model_dump()
+    data = result.model_dump()
+    # The confirmation widget displays these directly (raw ids like
+    # "sedan-2026" aren't customer-facing), the chat reply itself can
+    # already phrase things naturally from context.
+    data["vehicle_name"] = logic.CATALOG[result.model_id].name
+    data["dealer_name"] = logic._dealer_display_name(result.dealer_id)
+    return data
 
 
 @mcp.tool(
