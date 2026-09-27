@@ -26,8 +26,8 @@
       var idEl = document.getElementById("td-id");
 
       if (statusEl) statusEl.textContent = data.status === "confirmed" ? "Confirmed" : data.status;
-      if (modelEl) modelEl.textContent = data.model_id || "";
-      if (dealerEl) dealerEl.textContent = data.dealer_id || "";
+      if (modelEl) modelEl.textContent = data.vehicle_name || data.model_id || "";
+      if (dealerEl) dealerEl.textContent = data.dealer_name || data.dealer_id || "";
       if (dtEl) dtEl.textContent = data.confirmed_datetime || "";
       if (idEl) idEl.textContent = data.booking_id || "";
     }
