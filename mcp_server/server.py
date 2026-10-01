@@ -19,7 +19,7 @@ import sys
 import os
 import argparse
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TypedDict
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from app import booking_logic as logic
@@ -58,6 +58,21 @@ mcp = FastMCP(
 
 
 WIDGET_URI = "ui://widget/booking-confirmation.html"
+
+
+# Explicit return shape for book_test_drive. Without this, FastMCP can't
+# build a schema from a bare `dict` return type, so no structuredContent is
+# attached to the tool result and window.openai.toolOutput is undefined in
+# the widget (every field renders blank except the hardcoded "Confirmed").
+class BookingWidgetData(TypedDict):
+    booking_id: str
+    status: str
+    confirmed_datetime: str
+    dealer_id: str
+    model_id: str
+    message: str
+    vehicle_name: str
+    dealer_name: str
 
 
 def _load_widget_html() -> str:
@@ -237,7 +252,7 @@ def book_test_drive(
     dealer_id: str,
     preferred_datetime_iso: str,
     notes: Optional[str] = None,
-) -> dict:
+) -> BookingWidgetData:
     """Use this only after a vehicle, dealer, and an available time slot have
     been confirmed, typically after wrenfield.search_vehicles,
     wrenfield.list_dealers, and wrenfield.check_test_drive_availability.
@@ -266,7 +281,7 @@ def book_test_drive(
         notes=notes,
     )
     result = logic.create_booking(req)
-    data = result.model_dump()
+    data = result.model_dump(mode="json")
     # The confirmation widget displays these directly (raw ids like
     # "sedan-2026" aren't customer-facing), the chat reply itself can
     # already phrase things naturally from context.
